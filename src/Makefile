@@ -4,7 +4,8 @@ CXX = g++
 CXXFLAGS = -Wall -Wextra -O3 -std=c++23
 
 OBJ = main.o \
-	  input.o
+	  input.o \
+	  output.o
 
 EXEC = naiad.x
 
@@ -20,5 +21,6 @@ clean:
 	$(RM) $(OBJ)
 	$(RM) $(EXEC)
 
-main.o : input.hpp
+main.o : input.hpp output.hpp
 input.o : input.hpp
+output.o : output.hpp

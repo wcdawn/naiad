@@ -1,3 +1,6 @@
+#ifndef NAIAD_INPUT_HPP
+#define NAIAD_INPUT_HPP
+
 #include <string>
 
 namespace naiad
@@ -11,3 +14,5 @@ class Input
 };
 
 } // namespace naiad
+
+#endif
