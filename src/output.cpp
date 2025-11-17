@@ -3,6 +3,6 @@
 namespace naiad
 {
 
-Output out{};
+Composition_stream out{};
 
 } // namespace naiad

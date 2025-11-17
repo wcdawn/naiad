@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 
   if (args.size() != std::size_t{2})
   {
-    std::cout << "Expect exactly one argument (filename)." << std::endl;
+    std::cerr << "Expect exactly one argument (filename)." << std::endl;
     return 1;
   }
 
@@ -32,18 +32,19 @@ int main(int argc, char* argv[])
   const std::string fname_stub{get_stub(fname_inp)};
   const std::string fname_out{fname_stub + "out"};
 
-  naiad::out.associate_output_filename(fname_out);
+  naiad::out.link_stream(std::cout);
+  naiad::out.link_filename(fname_out);
 
-  std::cout << "BEGIN naiad ναϊάς" << std::endl;
-  std::cout << std::endl;
+  naiad::out << "BEGIN naiad ναϊάς" << std::endl;
+  naiad::out << std::endl;
 
   // print arguments to terminal
-  std::cout << "=== COMMAND-LINE ARGUMENTS ===" << std::endl;
+  naiad::out << "=== COMMAND-LINE ARGUMENTS ===" << std::endl;
   for (const auto & x : args)
-    std::cout << x << std::endl;
-  std::cout << std::endl;
+    naiad::out << x << std::endl;
+  naiad::out << std::endl;
 
-  std::cout << "END naiad ναϊάς" << std::endl;
+  naiad::out << "END naiad ναϊάς" << std::endl;
 
   return 0;
 }
