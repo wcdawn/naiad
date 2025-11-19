@@ -32,4 +32,34 @@ void Geometry::refine()
   }
 }
 
+std::vector<double> Geometry::xleft(double xinit) const
+{
+  std::vector<double> xl;
+  xl.resize(dx.size());
+  xl[0] = xinit;
+  for (std::size_t i = 1; i < xl.size(); ++i)
+    xl[i] = xl[i-1] + dx[i-1];
+  return xl;
+}
+
+std::vector<double> Geometry::xright(double xinit) const
+{
+  std::vector<double> xr;
+  xr.resize(dx.size());
+  xr[0] = xinit + dx[0];
+  for (std::size_t i = 1; i < xr.size(); ++i)
+    xr[i] = xr[i-1] + dx[i];
+  return xr;
+}
+
+std::vector<double> Geometry::xcenter(double xinit) const
+{
+  std::vector<double> xc;
+  xc.resize(dx.size());
+  xc[0] = xinit + 0.5*dx[0];
+  for (std::size_t i = 1; i < xc.size(); ++i)
+    xc[i] = xc[i-1] + 0.5*(dx[i-1]+dx[i]);
+  return xc;
+}
+
 } // namespace naiad
