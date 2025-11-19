@@ -2,6 +2,7 @@
 #define NAIAD_GEOMETRY_HPP
 
 #include <vector>
+#include <ostream>
 
 namespace naiad
 {
@@ -16,6 +17,8 @@ class Geometry
     {}
 
     void refine();
+
+    void summary(std::ostream & os) const;
 
     std::vector<double> xleft(double xinit = 0.0) const;
     std::vector<double> xright(double xinit = 0.0) const;

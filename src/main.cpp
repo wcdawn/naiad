@@ -4,6 +4,8 @@
 
 #include "input.hpp"
 #include "output.hpp"
+#include "geometry.hpp"
+#include "xslibrary.hpp"
 
 using namespace naiad;
 
@@ -51,6 +53,24 @@ int main(int argc, char* argv[])
 
   input.echo(fout);
   input.summary(naiad::out);
+
+  const XSLibrary & xslib{input.xslibrary()};
+  xslib.summary(naiad::out);
+
+  // this is actually a copy so that I can do refinement
+  Geometry geo{input.geometry()};
+
+  naiad::out << "(before refinement)" << std::endl;
+  geo.summary(naiad::out);
+
+  for (int i = 0; i < input.refine(); ++i)
+    geo.refine();
+
+  if (input.refine() > 0)
+  {
+    naiad::out << "(after refinement)" << std::endl;
+    geo.summary(naiad::out);
+  }
 
   naiad::out << "END naiad ναϊάς" << std::endl;
 

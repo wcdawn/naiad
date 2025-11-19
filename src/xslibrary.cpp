@@ -73,6 +73,13 @@ XSLibrary::XSLibrary(const std::string & filename_)
       for (double & x : mat.back().nusf)
         ifs >> x;
     }
+    else if (card == "sigma_f")
+    {
+      mat.back().isfis = true;
+      mat.back().sigma_f.resize(ngroup());
+      for (double & x : mat.back().sigma_f)
+        ifs >> x;
+    }
     else if (card == "chi")
     {
       mat.back().isfis = true;
@@ -113,6 +120,24 @@ int XSMaterial::ngroup(int n)
 {
   ng = n;
   return ngroup();
+}
+
+void XSLibrary::summary(std::ostream & os) const
+{
+  os << "=== XSLIBRARY SUMMARY ===" << std::endl;
+  os << "filename: " << filename() << std::endl;
+  os << "niso= " << mat.size() << std::endl;
+  os << "ngroup= " << ngroup() << std::endl;
+  os << "nmoment= " << nmoment() << std::endl;
+  for (const XSMaterial & xsmat : mat)
+    xsmat.summary(os);
+  os << std::endl;
+}
+
+void XSMaterial::summary(std::ostream & os) const
+{
+  // TODO kinf
+  os << "name: " << name() << " , fiss= " << isfis << std::endl;
 }
 
 } // namespace naiad

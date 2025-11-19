@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <ostream>
 
 #include "dense_matrix.hpp"
 
@@ -18,13 +19,15 @@ class XSMaterial
 
     int ngroup() const { return ng; }
     int ngroup(int n);
-
     std::string name() const { return nam; }
+
+    void summary(std::ostream & os) const;
 
     std::vector<double> sigma_t;
     std::vector<Dense_matrix<double>> scatter;
 
     std::vector<double> nusf;
+    std::vector<double> sigma_f;
     std::vector<double> chi;
 
     bool isfis{false};
@@ -45,6 +48,8 @@ class XSLibrary
 
     const XSMaterial & operator()(const std::string & name) const;
     XSMaterial & operator()(const std::string & name);
+
+    void summary(std::ostream & os) const;
 
     std::string filename() const { return fname; }
     int ngroup() const { return ng; }

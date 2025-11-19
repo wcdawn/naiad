@@ -1,6 +1,8 @@
 #include "geometry.hpp"
 
 #include <iostream>
+#include <format>
+#include <algorithm>
 
 namespace naiad
 {
@@ -60,6 +62,37 @@ std::vector<double> Geometry::xcenter(double xinit) const
   for (std::size_t i = 1; i < xc.size(); ++i)
     xc[i] = xc[i-1] + 0.5*(dx[i-1]+dx[i]);
   return xc;
+}
+
+void Geometry::summary(std::ostream & os) const
+{
+  os << "=== GEOMETRY SUMMARY ===" << std::endl;
+  os << "nx= " << dx.size() << std::endl;
+  if (dx.size() <= std::size_t{10})
+  {
+    os << "dx=";
+    for (const double & x : dx)
+      os << std::format(" {:.2e}", x);
+    os << std::endl;
+  }
+  else
+  {
+    os << "dx omitted for space" << std::endl;
+  }
+  os << "maximum dx= " << std::format("{:.2e}", *std::max_element(dx.begin(), dx.end())) << std::endl;
+  os << "minimum dx= " << std::format("{:.2e}", *std::min_element(dx.begin(), dx.end())) << std::endl;
+  if (mat_map.size() <= std::size_t{10})
+  {
+    os << "mat_map=";
+    for (const auto & x : mat_map)
+      os << " " << x;
+    os << std::endl;
+  }
+  else
+  {
+    os << "mat_map omitted for space" << std::endl;
+  }
+  os << std::endl;
 }
 
 } // namespace naiad

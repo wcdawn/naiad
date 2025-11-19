@@ -40,7 +40,6 @@ Input::Input(const std::string & filename_)
 
   std::vector<double> dx;
   std::vector<int> mat_map;
-  int refine;
 
   while (ifs.good())
   {
@@ -79,7 +78,7 @@ Input::Input(const std::string & filename_)
     }
     else if (card == "refine")
     {
-      ifs >> refine;
+      ifs >> refinement;
     }
     
     else if (card == "snorder")
