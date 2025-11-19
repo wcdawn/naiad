@@ -5,6 +5,8 @@ spatial_method diamond_difference
 
 use_dsa true
 
+nx 1
+
 dx 2.113309666
 #mat_map fuel
 # TODO this needs to be implemented to work on mappings between strings/int whatever

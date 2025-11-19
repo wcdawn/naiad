@@ -1,6 +1,6 @@
 niso 1
 ngroup 1
-nmoment 0
+nmoment 1
 
 # c = 1.1
 # critical half-thickness b=2.11330966 MFP

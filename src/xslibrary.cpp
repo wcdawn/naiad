@@ -57,7 +57,7 @@ XSLibrary::XSLibrary(const std::string & filename_)
     }
     else if (card == "scatter")
     {
-      mat.back().scatter.resize(nmoment()+1);
+      mat.back().scatter.resize(nmoment());
       for (Dense_matrix<double> & x : mat.back().scatter)
         x.resize(ngroup());
       int mom;
