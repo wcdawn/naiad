@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "geometry.hpp"
+#include "xslibrary.hpp"
 
 namespace naiad
 {
@@ -48,6 +49,7 @@ class Input
     const std::string filename;
     const std::string echo_str;
     Geometry geo;
+    XSLibrary xs;
 
     int pnorder{0};
     int snorder{0}; // snorder==0 will be used to access the diffusion solver

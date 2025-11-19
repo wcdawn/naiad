@@ -32,8 +32,10 @@ int main(int argc, char* argv[])
   const std::string fname_stub{get_stub(fname_inp)};
   const std::string fname_out{fname_stub + "out"};
 
+  std::ofstream fout{fname_out};
+
   naiad::out.link_stream(std::cout);
-  naiad::out.link_filename(fname_out);
+  naiad::out.link_stream(fout);
 
   naiad::out << "BEGIN naiad ναϊάς" << std::endl;
   naiad::out << std::endl;
@@ -46,6 +48,9 @@ int main(int argc, char* argv[])
 
   // parse input
   const Input input{fname_inp};
+
+  input.echo(fout);
+  input.summary(naiad::out);
 
   naiad::out << "END naiad ναϊάς" << std::endl;
 

@@ -4,9 +4,11 @@ CXX = g++
 CXXFLAGS = -Wall -Wextra -O3 -std=c++23
 
 OBJ = main.o \
+	  dense_matrix.o \
 	  geometry.o \
 	  input.o \
-	  output.o
+	  output.o \
+	  xslibrary.o
 
 EXEC = naiad.x
 
@@ -23,6 +25,8 @@ clean:
 	$(RM) $(EXEC)
 
 main.o : input.hpp output.hpp
-input.o : input.hpp geometry.hpp
+input.o : input.hpp geometry.hpp xslibrary.hpp
 output.o : output.hpp
 geometry.o : geometry.hpp
+xslibrary.o : xslibrary.hpp
+dense_matrix.o : dense_matrix.hpp

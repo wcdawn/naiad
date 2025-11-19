@@ -49,6 +49,7 @@ Input::Input(const std::string & filename_)
     if (card[0] == '#')
     {
       for (char x{'a'}; x != '\n'; ifs.get(x)) {}
+      continue;
     }
 
     if (card == "")
@@ -106,12 +107,16 @@ Input::Input(const std::string & filename_)
       const std::string bc{get_card(ifs)};
       bc_right = str2enum_boundary_condition(bc);
     }
+    else
+    {
+      std::cout << "UNKNOWN INPUT CARD: " << card << std::endl;
+    }
 
   }
 
   geo = Geometry{dx, mat_map};
+  xs = XSLibrary{fname_xslib};
 
-  // TODO parse xs library
 }
 
 void Input::check() const
@@ -125,8 +130,9 @@ void Input::check() const
 
 void Input::echo(std::ostream & os) const
 {
-  os << "=== INPUT ECHO ===" << std::endl;
+  os << "=== INPUT ECHO (BEGIN) ===" << std::endl;
   os << echo_str << std::endl;
+  os << "=== INPUT ECHO (END) ===" << std::endl;
   os << std::endl;
 }
 
@@ -134,7 +140,13 @@ void Input::summary(std::ostream & os) const
 {
   os << "=== INPUT SUMMARY ===" << std::endl;
   os << "input filename: " << filename << std::endl;
+  os << "xslib filename: " << xs.filename() << std::endl;
   os << "snorder= " << snorder << std::endl;
+  os << "pnorder= " << pnorder << std::endl;
+  os << "spatial method: " << enum2str(spatial_method) << std::endl;
+  os << "BC left: " << enum2str(bc_left) << std::endl;
+  os << "BC right: " << enum2str(bc_right) << std::endl;
+  os << std::endl;
 }
 
 Spatial_method str2enum_spatial_method(const std::string & str)
