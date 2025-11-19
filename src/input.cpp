@@ -30,8 +30,8 @@ std::string slurp(const std::string & filename)
   return slurp(ifs);
 }
 
-Input::Input(const std::string & filename)
-  :echo{slurp(filename)}
+Input::Input(const std::string & filename_)
+  :filename{filename_}, echo_str{slurp(filename_)}
 {
 
   std::ifstream ifs{filename};
@@ -121,6 +121,20 @@ void Input::check() const
     std::cerr << "ERROR: SN order must be even! snorder=" << snorder << std::endl;
     std::abort();
   }
+}
+
+void Input::echo(std::ostream & os) const
+{
+  os << "=== INPUT ECHO ===" << std::endl;
+  os << echo_str << std::endl;
+  os << std::endl;
+}
+
+void Input::summary(std::ostream & os) const
+{
+  os << "=== INPUT SUMMARY ===" << std::endl;
+  os << "input filename: " << filename << std::endl;
+  os << "snorder= " << snorder << std::endl;
 }
 
 Spatial_method str2enum_spatial_method(const std::string & str)

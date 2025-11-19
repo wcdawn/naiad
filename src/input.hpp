@@ -38,12 +38,15 @@ std::string enum2str(const Boundary_condition bc);
 class Input
 {
   public:
-    Input(const std::string & filename);
+    Input(const std::string & filename_);
 
     void check() const;
+    void echo(std::ostream & os) const;
+    void summary(std::ostream & os) const;
 
   private:
-    const std::string echo;
+    const std::string filename;
+    const std::string echo_str;
     Geometry geo;
 
     int pnorder{0};
