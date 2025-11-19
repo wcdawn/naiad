@@ -13,6 +13,10 @@ class Geometry
       : dx{dx_}, mat_map{mat_map_}
     {}
 
+    Geometry()
+      : dx{}, mat_map{}
+    {}
+
     void refine();
 
   private:

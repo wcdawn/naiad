@@ -23,6 +23,6 @@ clean:
 	$(RM) $(EXEC)
 
 main.o : input.hpp output.hpp
-input.o : input.hpp
+input.o : input.hpp geometry.hpp
 output.o : output.hpp
 geometry.o : geometry.hpp
