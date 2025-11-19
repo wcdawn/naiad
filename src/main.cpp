@@ -44,6 +44,9 @@ int main(int argc, char* argv[])
     naiad::out << x << std::endl;
   naiad::out << std::endl;
 
+  // parse input
+  const Input input{fname_inp};
+
   naiad::out << "END naiad ναϊάς" << std::endl;
 
   return 0;
