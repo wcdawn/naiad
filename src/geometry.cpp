@@ -1,7 +1,21 @@
 #include "geometry.hpp"
 
+#include <iostream>
+
 namespace naiad
 {
+
+Geometry::Geometry(const std::vector<double> & dx_, const std::vector<int> & mat_map_)
+  : dx{dx_}, mat_map{mat_map_}
+{
+  if (dx.size() != mat_map.size())
+  {
+    std::cerr << "Inconsistent sizes of dx and mat_map.\n"
+              << "dx.size()= " << dx.size() << "\n"
+              << "mat_map.size()= " << mat_map.size() << std::endl;
+    std::abort();
+  }
+}
 
 void Geometry::refine()
 {

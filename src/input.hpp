@@ -40,7 +40,7 @@ class Input
   public:
     Input(const std::string & filename);
 
-    // TODO implement a "check" function
+    void check() const;
 
   private:
     const std::string echo;

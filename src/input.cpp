@@ -83,8 +83,6 @@ Input::Input(const std::string & filename)
     
     else if (card == "snorder")
     {
-      // TODO check if even
-      // consider: snorder == 0 can be used to access diffusion solver
       ifs >> snorder;
     }
     else if (card == "pnorder")
@@ -114,6 +112,15 @@ Input::Input(const std::string & filename)
   geo = Geometry{dx, mat_map};
 
   // TODO parse xs library
+}
+
+void Input::check() const
+{
+  if (snorder % 2 != 0)
+  {
+    std::cerr << "ERROR: SN order must be even! snorder=" << snorder << std::endl;
+    std::abort();
+  }
 }
 
 Spatial_method str2enum_spatial_method(const std::string & str)

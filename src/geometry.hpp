@@ -9,9 +9,7 @@ namespace naiad
 class Geometry
 {
   public:
-    Geometry(const std::vector<double> & dx_, const std::vector<int> & mat_map_)
-      : dx{dx_}, mat_map{mat_map_}
-    {}
+    Geometry(const std::vector<double> & dx_, const std::vector<int> & mat_map_);
 
     Geometry()
       : dx{}, mat_map{}
