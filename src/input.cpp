@@ -117,8 +117,10 @@ Input::Input(const std::string & filename_)
 
   }
 
+  // secondary processing to separate error messages
   geo = Geometry{dx, mat_map};
   xs = XSLibrary{fname_xslib};
+  xs.finalize();
 
 }
 

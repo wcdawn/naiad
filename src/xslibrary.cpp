@@ -56,6 +56,12 @@ XSLibrary::XSLibrary(const std::string & filename_)
       for (double & x : mat.back().sigma_t)
         ifs >> x;
     }
+    else if (card == "diffusion")
+    {
+      mat.back().diffusion.resize(ngroup());
+      for (double & x : mat.back().diffusion)
+        ifs >> x;
+    }
     else if (card == "scatter")
     {
       mat.back().scatter.resize(nmoment());
@@ -92,8 +98,6 @@ XSLibrary::XSLibrary(const std::string & filename_)
     {
       std::cout << "UNKNOWN XSLIBRARY CARD: " << card << std::endl;
     }
-
-
   }
 }
 
@@ -137,6 +141,23 @@ void XSMaterial::summary(std::ostream & os) const
 {
   // TODO kinf
   os << "name: " << name() << " , fiss= " << isfis << std::endl;
+}
+
+void XSLibrary::finalize()
+{
+  for (auto & m : mat)
+    m.finalize();
+}
+
+void XSMaterial::finalize()
+{
+  constexpr bool consistent_diffusion{false};
+  if ((diffusion.empty()) || consistent_diffusion)
+  {
+    diffusion.reserve(ngroup());
+    for (const double & x : sigma_t)
+      diffusion.emplace_back(1.0 / (3.0 * x));
+  }
 }
 
 } // namespace naiad

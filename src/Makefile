@@ -12,7 +12,8 @@ OBJ = main.o \
 	  output.o \
 	  xslibrary.o \
 	  diffusion.o \
-	  result.o
+	  result.o \
+	  linalg.o
 
 EXEC = naiad.x
 
@@ -35,5 +36,6 @@ geometry.o : geometry.hpp exception_handler.hpp
 xslibrary.o : xslibrary.hpp exception_handler.hpp
 dense_matrix.o : dense_matrix.hpp
 exception_handler.o : exception_handler.hpp
-diffusion.o : diffusion.hpp input.hpp geometry.hpp xslibrary.hpp result.hpp exception_handler.hpp
+diffusion.o : diffusion.hpp input.hpp geometry.hpp xslibrary.hpp result.hpp exception_handler.hpp linalg.hpp
 result.o : result.hpp
+linalg.o : linalg.hpp

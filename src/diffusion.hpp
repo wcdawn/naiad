@@ -6,8 +6,18 @@
 #include "xslibrary.hpp"
 #include "result.hpp"
 
+#include <vector>
+
 namespace naiad
 {
+
+class Tridiagonal_multigroup_matrix
+{
+  public:
+    std::vector<std::vector<double>> sub;
+    std::vector<std::vector<double>> dia;
+    std::vector<std::vector<double>> sup;
+};
 
 class Diffusion_solver
 {
@@ -23,6 +33,9 @@ class Diffusion_solver
     const Geometry & geo;
     const XSLibrary & xslib;
     const Tolerance & tol;
+
+    // sub, dia, sup
+    Tridiagonal_multigroup_matrix build_matrix() const;
 
 };
 

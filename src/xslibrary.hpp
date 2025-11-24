@@ -25,12 +25,15 @@ class XSMaterial
 
     std::vector<double> sigma_t;
     std::vector<Dense_matrix<double>> scatter;
+    std::vector<double> diffusion;
 
     std::vector<double> nusf;
     std::vector<double> sigma_f;
     std::vector<double> chi;
 
     bool isfis{false};
+
+    void finalize();
 
   private:
     int ng;
@@ -54,6 +57,8 @@ class XSLibrary
     std::string filename() const { return fname; }
     int ngroup() const { return ng; }
     int nmoment() const { return nmom; }
+
+    void finalize();
 
   private:
     std::string fname;
