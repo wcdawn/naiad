@@ -14,6 +14,17 @@ std::string get_card(std::ifstream & ifs);
 std::string slurp(std::ifstream & ifs);
 std::string slurp(const std::string & filename);
 
+class Tolerance
+{
+  public:
+    double phi{1e-7};
+    double k{1e-6};
+    double scatter{1e-7};
+
+    int max_iter_phi{1'000};
+    int max_iter_scatter{100};
+};
+
 enum class Spatial_method
 {
   diamond_difference,
@@ -47,6 +58,7 @@ class Input
 
     const auto & xslibrary() const { return xs; }
     const auto & geometry() const { return geo; }
+    const auto & tolerance() const { return tol; }
 
     int refine{0};
 
@@ -63,6 +75,7 @@ class Input
     const std::string echo_str;
     Geometry geo;
     XSLibrary xs;
+    Tolerance tol;
 
 };
 

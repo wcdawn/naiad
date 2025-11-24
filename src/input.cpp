@@ -108,6 +108,8 @@ Input::Input(const std::string & filename_)
       const std::string bc{get_card(ifs)};
       bc_right = str2enum_boundary_condition(bc);
     }
+
+
     else
     {
       std::cout << "UNKNOWN INPUT CARD: " << card << std::endl;
@@ -141,10 +143,23 @@ void Input::summary(std::ostream & os) const
   os << "xslib filename: " << xs.filename() << std::endl;
   os << "refine= " << refine << std::endl;
   os << "pnorder= " << pnorder << std::endl;
-  os << "snorder= " << snorder << std::endl;
+
+  os << "snorder= " << snorder;
+  if (snorder == 0)
+    os << " (diffusion)";
+  os << std::endl;
+
   os << "spatial method: " << enum2str(spatial_method) << std::endl;
   os << "BC left: " << enum2str(bc_left) << std::endl;
   os << "BC right: " << enum2str(bc_right) << std::endl;
+
+  os << "tolerance:" << std::endl;
+  os << "  tol_phi= " << std::format("{:.1e}", tol.phi) << std::endl;
+  os << "  tol_k= " << std::format("{:.1e}", tol.k) << std::endl;
+  os << "  tol_scatter= " << std::format("{:.1e}", tol.scatter) << std::endl;
+  os << "  max_iter_phi= " << std::format("{:d}", tol.max_iter_phi) << std::endl;
+  os << "  max_iter_scatter= " << std::format("{:d}", tol.max_iter_scatter) << std::endl;
+
   os << std::endl;
 }
 

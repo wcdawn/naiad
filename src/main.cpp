@@ -7,6 +7,8 @@
 #include "geometry.hpp"
 #include "xslibrary.hpp"
 #include "exception_handler.hpp"
+#include "diffusion.hpp"
+#include "result.hpp"
 
 using namespace naiad;
 
@@ -71,6 +73,19 @@ int main(int argc, char* argv[])
   {
     naiad::out << "(after refinement)" << std::endl;
     geo.summary(naiad::out);
+  }
+
+  const Tolerance & tol{input.tolerance()};
+
+  if (input.snorder == 0)
+  {
+    // diffusion
+    const Diffusion_solver diffusion{geo, xslib, tol};
+    const Result res{diffusion.solve()};
+  }
+  else
+  {
+    // transport
   }
 
   exception.summary(naiad::out);
