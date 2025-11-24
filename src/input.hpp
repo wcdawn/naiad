@@ -47,15 +47,8 @@ class Input
 
     const auto & xslibrary() const { return xs; }
     const auto & geometry() const { return geo; }
-    const auto & refine() const { return refinement; }
 
-  private:
-    const std::string filename;
-    const std::string echo_str;
-    Geometry geo;
-    XSLibrary xs;
-
-    int refinement{0};
+    int refine{0};
 
     int pnorder{0};
     int snorder{0}; // snorder==0 will be used to access the diffusion solver
@@ -64,6 +57,12 @@ class Input
 
     Boundary_condition bc_left{Boundary_condition::mirror};
     Boundary_condition bc_right{Boundary_condition::mirror};
+
+  private:
+    const std::string filename;
+    const std::string echo_str;
+    Geometry geo;
+    XSLibrary xs;
 
 };
 

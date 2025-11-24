@@ -1,4 +1,5 @@
 #include "xslibrary.hpp"
+#include "exception_handler.hpp"
 
 #include <fstream>
 
@@ -101,8 +102,7 @@ const XSMaterial & XSLibrary::operator()(const std::string & name) const
   const auto find{matid.find(name)};
   if (find != matid.end())
     return (*this)(find->second);
-  std::cerr << "Could not find material in library: " << name << std::endl;
-  std::abort();
+  exception.fatal(std::string{"Could not find material in library: "} + name);
   return mat.front();
 }
 
@@ -111,8 +111,7 @@ XSMaterial & XSLibrary::operator()(const std::string & name)
   const auto find{matid.find(name)};
   if (find != matid.end())
     return (*this)(find->second);
-  std::cerr << "Could not find material in library: " << name << std::endl;
-  std::abort();
+  exception.fatal(std::string{"Could not find material in library: "} + name);
   return mat.front();
 }
 

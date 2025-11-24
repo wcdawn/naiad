@@ -6,6 +6,7 @@ CXXFLAGS = -Wall -Wextra -O3 -std=c++23
 
 OBJ = main.o \
 	  dense_matrix.o \
+	  exception_handler.o \
 	  geometry.o \
 	  input.o \
 	  output.o \
@@ -25,9 +26,10 @@ clean:
 	$(RM) $(OBJ)
 	$(RM) $(EXEC)
 
-main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp
-input.o : input.hpp geometry.hpp xslibrary.hpp
+main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp exception_handler.hpp
+input.o : input.hpp geometry.hpp xslibrary.hpp exception_handler.hpp
 output.o : output.hpp
-geometry.o : geometry.hpp
-xslibrary.o : xslibrary.hpp
+geometry.o : geometry.hpp exception_handler.hpp
+xslibrary.o : xslibrary.hpp exception_handler.hpp
 dense_matrix.o : dense_matrix.hpp
+exception_handler.o : exception_handler.hpp

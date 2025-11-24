@@ -6,6 +6,7 @@
 #include "output.hpp"
 #include "geometry.hpp"
 #include "xslibrary.hpp"
+#include "exception_handler.hpp"
 
 using namespace naiad;
 
@@ -63,16 +64,19 @@ int main(int argc, char* argv[])
   naiad::out << "(before refinement)" << std::endl;
   geo.summary(naiad::out);
 
-  for (int i = 0; i < input.refine(); ++i)
+  for (int i = 0; i < input.refine; ++i)
     geo.refine();
 
-  if (input.refine() > 0)
+  if (input.refine > 0)
   {
     naiad::out << "(after refinement)" << std::endl;
     geo.summary(naiad::out);
   }
 
+  exception.summary(naiad::out);
+
   naiad::out << "END naiad ναϊάς" << std::endl;
+  naiad::out << "Normal termination :)" << std::endl;
 
   return 0;
 }

@@ -1,4 +1,5 @@
 #include "geometry.hpp"
+#include "exception_handler.hpp"
 
 #include <iostream>
 #include <format>
@@ -12,10 +13,9 @@ Geometry::Geometry(const std::vector<double> & dx_, const std::vector<int> & mat
 {
   if (dx.size() != mat_map.size())
   {
-    std::cerr << "Inconsistent sizes of dx and mat_map.\n"
-              << "dx.size()= " << dx.size() << "\n"
-              << "mat_map.size()= " << mat_map.size() << std::endl;
-    std::abort();
+    exception.fatal(std::string{"Inconsistent sizes of dx and mat_map.\n"}
+              + "dx.size()= " + std::format("{:d}", dx.size()) + "\n"
+              + "mat_map.size()= " + std::format("{:d}", mat_map.size()));
   }
 }
 

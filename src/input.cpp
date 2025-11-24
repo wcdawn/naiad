@@ -1,5 +1,7 @@
 #include "input.hpp"
 
+#include "exception_handler.hpp"
+
 #include <fstream>
 #include <string>
 #include <vector>
@@ -78,7 +80,7 @@ Input::Input(const std::string & filename_)
     }
     else if (card == "refine")
     {
-      ifs >> refinement;
+      ifs >> refine;
     }
     
     else if (card == "snorder")
@@ -121,10 +123,7 @@ Input::Input(const std::string & filename_)
 void Input::check() const
 {
   if (snorder % 2 != 0)
-  {
-    std::cerr << "ERROR: SN order must be even! snorder=" << snorder << std::endl;
-    std::abort();
-  }
+    exception.fatal(std::string{"SN order must be even! snorder="} + std::format("{:d}", snorder));
 }
 
 void Input::echo(std::ostream & os) const
@@ -140,8 +139,9 @@ void Input::summary(std::ostream & os) const
   os << "=== INPUT SUMMARY ===" << std::endl;
   os << "input filename: " << filename << std::endl;
   os << "xslib filename: " << xs.filename() << std::endl;
-  os << "snorder= " << snorder << std::endl;
+  os << "refine= " << refine << std::endl;
   os << "pnorder= " << pnorder << std::endl;
+  os << "snorder= " << snorder << std::endl;
   os << "spatial method: " << enum2str(spatial_method) << std::endl;
   os << "BC left: " << enum2str(bc_left) << std::endl;
   os << "BC right: " << enum2str(bc_right) << std::endl;
@@ -160,9 +160,7 @@ Spatial_method str2enum_spatial_method(const std::string & str)
     return Spatial_method::linear_characteristic;
   if (str == "quadratic_characteristic")
     return Spatial_method::quadratic_characteristic;
-  // TODO exception handling
-  std::cerr << "Failure to identify spatial method: " << str << std::endl;
-  std::abort();
+  exception.fatal(std::string{"Failure to identify spatial method: "} + str);
   return Spatial_method::diamond_difference;
 }
 
@@ -181,9 +179,7 @@ std::string enum2str(const Spatial_method spatial_method)
     case (Spatial_method::quadratic_characteristic):
       return "quadratic_characteristic";
     default:
-      // TODO exception handling
-      std::cerr << "Unable to determine spatial_method string: " << static_cast<int>(spatial_method) << std::endl;
-      std::abort();
+      exception.fatal(std::string{"Unable to determine spatial_method string: "} + std::format("{:d}", static_cast<int>(spatial_method)));
       return "unknown";
   }
 }
@@ -196,8 +192,7 @@ Boundary_condition str2enum_boundary_condition(const std::string & str)
     return Boundary_condition::mirror;
   if (str == "zero")
     return Boundary_condition::zero;
-  std::cerr << "Unable to identify boundary condition: " << str << std::endl;
-  std::abort();
+  exception.fatal("Unable to identify boundary condition: " + str);
   return Boundary_condition::vacuum;
 }
 
@@ -212,8 +207,7 @@ std::string enum2str(const Boundary_condition bc)
     case (Boundary_condition::zero):
       return "zero";
     default:
-      std::cerr << "Unable to identify boundary condition name: " << static_cast<int>(bc) << std::endl;
-      std::abort();
+      exception.fatal(std::string{"Unable to identify boundary condition name: "} + std::format("{:d}", static_cast<int>(bc)));
       return "unknown";
   }
 }
