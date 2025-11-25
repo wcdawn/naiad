@@ -6,23 +6,21 @@
 namespace naiad
 {
 
-Tridiagonal_multigroup_matrix Diffusion_solver::build_matrix() const
+std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
 {
 
   const auto nx{geo.dx.size()};
 
-  Tridiagonal_multigroup_matrix A{};
-  A.sub.resize(xslib.ngroup());
-  A.dia.resize(xslib.ngroup());
-  A.sup.resize(xslib.ngroup());
-  for (auto & sub: A.sub)
-    sub.resize(nx-1);
-  for (auto & dia : A.dia)
-    dia.resize(nx);
-  for (auto & sup : A.sup)
-    sup.resize(nx-1);
+  std::vector<Tridiagonal_matrix> A;
+  A.resize(xslib.ngroup());
+  for (auto & Amat : A)
+  {
+    Amat.sub.resize(nx-1);
+    Amat.dia.resize(nx);
+    Amat.sup.resize(nx-1);
+  }
 
-  // BC at x=0, i=0
+  // BC at x=0, i=0 (mirror)
   const auto mthis{geo.mat_map[0]};
   const auto mnext{geo.mat_map[1]};
   for (int g = 0; g < xslib.ngroup(); ++g)
@@ -30,7 +28,7 @@ Tridiagonal_multigroup_matrix Diffusion_solver::build_matrix() const
     const double dnext{2 
       * (xslib(mthis).diffusion[g]/geo.dx[0] * xslib(mnext).diffusion[g]/geo.dx[1])
       / (xslib(mthis).diffusion[g]/geo.dx[0] + xslib(mnext).diffusion[g]/geo.dx[1])};
-    A.dia[g][0] = dnext + (xslib(mthis).sigma_t[g] - xslib(mthis).scatter[0](g,g)) * geo.dx[0];
+    A[g].dia[0] = dnext + (xslib(mthis).sigma_t[g] - xslib(mthis).scatter[0](g,g)) * geo.dx[0];
   }
 
   return {};
@@ -39,7 +37,7 @@ Tridiagonal_multigroup_matrix Diffusion_solver::build_matrix() const
 Result Diffusion_solver::solve() const
 {
 
-  const Tridiagonal_multigroup_matrix trimat{build_matrix()};
+  const std::vector<Tridiagonal_matrix> trimat{build_matrix()};
 
   return {};
 }
