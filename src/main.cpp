@@ -75,12 +75,10 @@ int main(int argc, char* argv[])
     geo.summary(naiad::out);
   }
 
-  const Tolerance & tol{input.tolerance()};
-
   if (input.snorder == 0)
   {
     // diffusion
-    const Diffusion_solver diffusion{geo, xslib, tol};
+    const Diffusion_solver diffusion{geo, input.bc_left, input.bc_right, xslib, input.tolerance()};
     const Result res{diffusion.solve()};
   }
   else

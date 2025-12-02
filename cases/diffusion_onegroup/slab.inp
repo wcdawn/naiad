@@ -3,16 +3,15 @@ xslib onegroup.xs
 # diamond_difference , linear_discontinuous , step_characteristic , linear_characteristic , quadratic_characteristic
 spatial_method diamond_difference
 
-use_dsa true
+nx 4
 
-nx 1
-
-dx 2.113309666
+dx 25. 25. 25. 25.
 #mat_map fuel
 # TODO this needs to be implemented to work on mappings between strings/int whatever
-mat_map 0
+mat_map 0 0 0 0
 
-refine 3
+refine 0
 
+snorder 0
 bc_left mirror
-bc_right vacuum
+bc_right zero

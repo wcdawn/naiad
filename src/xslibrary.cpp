@@ -50,10 +50,16 @@ XSLibrary::XSLibrary(const std::string & filename_)
       mat.back().ngroup(ngroup());
       matid.insert({name, static_cast<int>(mat.size()-std::size_t{1})});
     }
-    else if (card == "total")
+    else if (card == "sigma_t")
     {
       mat.back().sigma_t.resize(ngroup());
       for (double & x : mat.back().sigma_t)
+        ifs >> x;
+    }
+    else if (card == "sigma_a")
+    {
+      mat.back().sigma_a.resize(ngroup());
+      for (double & x : mat.back().sigma_a)
         ifs >> x;
     }
     else if (card == "diffusion")
@@ -96,7 +102,7 @@ XSLibrary::XSLibrary(const std::string & filename_)
     }
     else
     {
-      std::cout << "UNKNOWN XSLIBRARY CARD: " << card << std::endl;
+      exception.warning(std::string{"UNKNOWN XSLIBRARY CARD: "} + card);
     }
   }
 }

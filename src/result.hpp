@@ -6,7 +6,13 @@
 class Result
 {
   public:
-    std::vector<double> phi;
+
+    Result() {}
+    Result(const std::vector<std::vector<double>> & phi_, const double & keff_)
+      : phi{phi_}, keff{keff_}
+    {}
+
+    std::vector<std::vector<double>> phi;
     double keff;
 };
 

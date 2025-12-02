@@ -109,10 +109,30 @@ Input::Input(const std::string & filename_)
       bc_right = str2enum_boundary_condition(bc);
     }
 
+    else if (card == "tol_phi")
+    {
+      ifs >> tol.phi;
+    }
+    else if (card == "tol_k")
+    {
+      ifs >> tol.k;
+    }
+    else if (card == "tol_scatter")
+    {
+      ifs >> tol.scatter;
+    }
+    else if (card == "max_iter_phi")
+    {
+      ifs >> tol.max_iter_phi;
+    }
+    else if (card == "max_iter_scatter")
+    {
+      ifs >> tol.max_iter_scatter;
+    }
 
     else
     {
-      std::cout << "UNKNOWN INPUT CARD: " << card << std::endl;
+      exception.warning(std::string{"UNKNOWN INPUT CARD: "} + card);
     }
 
   }
