@@ -13,7 +13,8 @@ OBJ = main.o \
 	  xslibrary.o \
 	  diffusion.o \
 	  result.o \
-	  linalg.o
+	  linalg.o \
+	  writer.o
 
 EXEC = naiad.x
 
@@ -29,7 +30,7 @@ clean:
 	$(RM) $(OBJ)
 	$(RM) $(EXEC)
 
-main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp exception_handler.hpp diffusion.hpp result.hpp
+main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp exception_handler.hpp diffusion.hpp result.hpp writer.hpp
 input.o : input.hpp geometry.hpp xslibrary.hpp exception_handler.hpp
 output.o : output.hpp
 geometry.o : geometry.hpp exception_handler.hpp
@@ -39,3 +40,4 @@ exception_handler.o : exception_handler.hpp
 diffusion.o : diffusion.hpp input.hpp geometry.hpp xslibrary.hpp result.hpp exception_handler.hpp linalg.hpp
 result.o : result.hpp
 linalg.o : linalg.hpp
+writer.o : writer.hpp geometry.hpp result.hpp

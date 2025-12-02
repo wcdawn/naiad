@@ -6,7 +6,12 @@
 namespace naiad
 {
 
-std::vector<double> trid(const std::vector<double> & sub, const std::vector<double> & dia, const std::vector<double> & sup, const std::vector<double> & b);
+// NOTE: this makes some careful copies!
+std::vector<double> trid(
+    const std::vector<double> & sub,
+    std::vector<double> dia,
+    const std::vector<double> & sup,
+    std::vector<double> b);
 
 } // namespace naiad
 

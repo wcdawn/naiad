@@ -9,13 +9,14 @@
 #include "exception_handler.hpp"
 #include "diffusion.hpp"
 #include "result.hpp"
+#include "writer.hpp"
 
 using namespace naiad;
 
 std::string get_stub(const std::string & fname)
 {
   const auto last{fname.find_last_of('.')};
-  return fname.substr(0,last+1); // includes period
+  return fname.substr(0,last); // does not include period
 }
 
 int main(int argc, char* argv[])
@@ -35,7 +36,7 @@ int main(int argc, char* argv[])
 
   const std::string fname_inp{args[1]};
   const std::string fname_stub{get_stub(fname_inp)};
-  const std::string fname_out{fname_stub + "out"};
+  const std::string fname_out{fname_stub + ".out"};
 
   std::ofstream fout{fname_out};
 
@@ -75,16 +76,22 @@ int main(int argc, char* argv[])
     geo.summary(naiad::out);
   }
 
+  Result res;
   if (input.snorder == 0)
   {
     // diffusion
     const Diffusion_solver diffusion{geo, input.bc_left, input.bc_right, xslib, input.tolerance()};
-    const Result res{diffusion.solve()};
+    res = diffusion.solve();
   }
   else
   {
     // transport
   }
+
+  naiad::out << "keff = " << std::format("{:.20f}", res.keff) << std::endl << std::endl;
+
+  const Writer writer{geo, res};
+  writer.write_flux(fname_stub + "_flux.csv");
 
   exception.summary(naiad::out);
 

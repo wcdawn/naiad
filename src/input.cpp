@@ -153,7 +153,7 @@ void Input::check() const
 void Input::echo(std::ostream & os) const
 {
   os << "=== INPUT ECHO (BEGIN) ===" << std::endl;
-  os << echo_str << std::endl;
+  os << echo_str;
   os << "=== INPUT ECHO (END) ===" << std::endl;
   os << std::endl;
 }
