@@ -15,8 +15,6 @@ if __name__ == "__main__":
     x = dat[:, 0]
     flux = dat[:, 1:]
 
-    print(x)
-
     plt.figure()
     for g in range(flux.shape[1]):
         plt.plot(x, flux[:, g], label="g={:d}".format(g))
@@ -26,6 +24,6 @@ if __name__ == "__main__":
     plt.ylabel("Flux")
     plt.title("NAIAD Flux")
     plt.tight_layout()
-    plt.savefig("flux." + extension, dpi=resolution)
+    plt.savefig(fname.replace("csv", extension), dpi=resolution)
 
     plt.show()
