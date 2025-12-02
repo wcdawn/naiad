@@ -42,7 +42,9 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
       const double dnext{2.0
         * (xslib(mthis).diffusion[g]/geo.dx[0] * xslib(mnext).diffusion[g]/geo.dx[1])
         / (xslib(mthis).diffusion[g]/geo.dx[0] + xslib(mnext).diffusion[g]/geo.dx[1])};
-      A[g].dia[0] = dnext + (xslib(mthis).sigma_t[g] - xslib(mthis).scatter[0](g,g)) * geo.dx[0];
+      A[g].dia[0] = dnext + 
+        (xslib(mthis).sigma_t[g] - xslib(mthis).scatter[0](g,g)) * geo.dx[0];
+      A[g].sup[0] = -dnext;
     }
   }
 
