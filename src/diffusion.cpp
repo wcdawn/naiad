@@ -58,10 +58,10 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
 
       const double dprev{2.0
         * (xslib(mthis).diffusion[g] / geo.dx[i] * xslib(mprev).diffusion[g] / geo.dx[i-1])
-        / (xslib(mthis).diffusion[g] * geo.dx[i] + xslib(mprev).diffusion[g] / geo.dx[i-1])};
+        / (xslib(mthis).diffusion[g] / geo.dx[i] + xslib(mprev).diffusion[g] / geo.dx[i-1])};
       const double dnext{2.0
         * (xslib(mthis).diffusion[g] / geo.dx[i] * xslib(mnext).diffusion[g] / geo.dx[i+1])
-        / (xslib(mthis).diffusion[g] * geo.dx[i] + xslib(mnext).diffusion[g] / geo.dx[i+1])};
+        / (xslib(mthis).diffusion[g] / geo.dx[i] + xslib(mnext).diffusion[g] / geo.dx[i+1])};
 
       A[g].sub[i-1] = -dprev;
       A[g].dia[i] = dprev + dnext
@@ -205,6 +205,17 @@ double Diffusion_solver::convergence_phi(
 Result Diffusion_solver::solve() const
 {
   const std::vector<Tridiagonal_matrix> trimat{build_matrix()};
+
+  constexpr bool matrix_dump{true};
+  if (matrix_dump)
+  {
+    std::ofstream ofs{"Amat.dat"};
+    ofs << std::format("{:.16e} , {:.16e} , {:.16e}\n", 0.0, trimat[0].dia[0], trimat[0].sup[0]);
+    for (std::size_t i = 1; i < trimat[0].dia.size()-1; ++i)
+      ofs << std::format("{:.16e} , {:.16e} , {:.16e}\n",
+          trimat[0].sub[i-1], trimat[0].dia[i], trimat[0].sup[i]);
+    ofs << std::format("{:.16e} , {:.16e} , {:.16e}\n", trimat[0].sub.back(), trimat[0].dia.back(), 0.0);
+  }
 
   std::vector<std::vector<double>> flux;
   flux.resize(xslib.ngroup());

@@ -21,7 +21,7 @@ std::vector<double> trid(
   std::vector<double> x;
   x.resize(b.size());
   x.back() = b.back() / dia.back();
-  for (int64_t i = dia.size() - 2; i >= 0; --i)
+  for (int64_t i = dia.size() - 3; i >= 0; --i)
     x[i] = (b[i] - sup[i] * x[i+1]) / dia[i];
 
   return x;
