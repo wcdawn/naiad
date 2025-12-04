@@ -42,4 +42,4 @@ diffusion.o : diffusion.hpp input.hpp geometry.hpp xslibrary.hpp result.hpp exce
 result.o : result.hpp
 linalg.o : linalg.hpp
 writer.o : writer.hpp geometry.hpp result.hpp
-analysis.o : analysis.hpp geometry.hpp result.hpp exception_handler.hpp
+analysis.o : analysis.hpp geometry.hpp result.hpp exception_handler.hpp xslibrary.hpp

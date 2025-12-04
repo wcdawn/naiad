@@ -96,7 +96,10 @@ int main(int argc, char* argv[])
   switch (input.analysis_reference)
   {
     case (Analysis_reference::critical):
-      analysis = std::make_unique<Analysis_critical>(geo, res);
+      analysis = std::make_unique<Analysis_critical>(geo, xslib, res);
+      break;
+    case (Analysis_reference::onegroup):
+      analysis = std::make_unique<Analysis_onegroup>(geo, xslib, res);
       break;
     default:
       // do nothing

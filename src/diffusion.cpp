@@ -35,15 +35,15 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
 
   // BC at x=0, i=0 (mirror)
   {
-    const auto mthis{geo.mat_map[0]};
-    const auto mnext{geo.mat_map[1]};
+    const auto & xsthis{xslib(geo.mat_map[0])};
+    const auto & xsnext{xslib(geo.mat_map[1])};
     for (int g = 0; g < xslib.ngroup(); ++g)
     {
       const double dnext{2.0
-        * (xslib(mthis).diffusion[g]/geo.dx[0] * xslib(mnext).diffusion[g]/geo.dx[1])
-        / (xslib(mthis).diffusion[g]/geo.dx[0] + xslib(mnext).diffusion[g]/geo.dx[1])};
+        * (xsthis.diffusion[g]/geo.dx[0] * xsnext.diffusion[g]/geo.dx[1])
+        / (xsthis.diffusion[g]/geo.dx[0] + xsnext.diffusion[g]/geo.dx[1])};
       A[g].dia[0] = dnext + 
-        (xslib(mthis).sigma_t[g] - xslib(mthis).scatter[0](g,g)) * geo.dx[0];
+        (xsthis.sigma_t[g] - xsthis.scatter[0](g,g)) * geo.dx[0];
       A[g].sup[0] = -dnext;
     }
   }
@@ -52,28 +52,28 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
   {
     for (std::size_t i = 1; i < nx-1; ++i)
     {
-      const auto mprev{geo.mat_map[i-1]};
-      const auto mthis{geo.mat_map[i]};
-      const auto mnext{geo.mat_map[i+1]};
+      const auto & xsprev{xslib(geo.mat_map[i-1])};
+      const auto & xsthis{xslib(geo.mat_map[i])};
+      const auto xsnext{xslib(geo.mat_map[i+1])};
 
       const double dprev{2.0
-        * (xslib(mthis).diffusion[g] / geo.dx[i] * xslib(mprev).diffusion[g] / geo.dx[i-1])
-        / (xslib(mthis).diffusion[g] / geo.dx[i] + xslib(mprev).diffusion[g] / geo.dx[i-1])};
+        * (xsthis.diffusion[g] / geo.dx[i] * xsprev.diffusion[g] / geo.dx[i-1])
+        / (xsthis.diffusion[g] / geo.dx[i] + xsprev.diffusion[g] / geo.dx[i-1])};
       const double dnext{2.0
-        * (xslib(mthis).diffusion[g] / geo.dx[i] * xslib(mnext).diffusion[g] / geo.dx[i+1])
-        / (xslib(mthis).diffusion[g] / geo.dx[i] + xslib(mnext).diffusion[g] / geo.dx[i+1])};
+        * (xsthis.diffusion[g] / geo.dx[i] * xsnext.diffusion[g] / geo.dx[i+1])
+        / (xsthis.diffusion[g] / geo.dx[i] + xsnext.diffusion[g] / geo.dx[i+1])};
 
       A[g].sub[i-1] = -dprev;
       A[g].dia[i] = dprev + dnext
-        + (xslib(mthis).sigma_t[g] - xslib(mthis).scatter[0](g,g)) * geo.dx[i];
+        + (xsthis.sigma_t[g] - xsthis.scatter[0](g,g)) * geo.dx[i];
       A[g].sup[i] = -dnext;
     }
   }
 
   // BC at x=L, i=nx-1
   {
-    const auto mprev{geo.mat_map[nx-2]};
-    const auto mthis{geo.mat_map[nx-1]};
+    const auto & xsprev{xslib(geo.mat_map[nx-2])};
+    const auto & xsthis{xslib(geo.mat_map[nx-1])};
     switch (bc_right)
     {
       case (Boundary_condition::mirror):
@@ -81,11 +81,11 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
         for (int g = 0; g < xslib.ngroup(); ++g)
         {
           const double dprev{2.0
-            * (xslib(mthis).diffusion[g] / geo.dx[nx-1] * xslib(mprev).diffusion[g] / geo.dx[nx-2])
-            / (xslib(mthis).diffusion[g] / geo.dx[nx-1] + xslib(mprev).diffusion[g] / geo.dx[nx-2])};
+            * (xsthis.diffusion[g] / geo.dx[nx-1] * xsprev.diffusion[g] / geo.dx[nx-2])
+            / (xsthis.diffusion[g] / geo.dx[nx-1] + xsprev.diffusion[g] / geo.dx[nx-2])};
           A[g].sub[nx-2] = -dprev;
           A[g].dia[nx-1] = dprev
-            + (xslib(mthis).sigma_t[g] - xslib(mthis).scatter[0](g,g)) * geo.dx[nx-1];
+            + (xsthis.sigma_t[g] - xsthis.scatter[0](g,g)) * geo.dx[nx-1];
         }
         break;
       }
@@ -94,12 +94,12 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
         for (int g = 0; g < xslib.ngroup(); ++g)
         {
           const double dprev{2.0
-            * (xslib(mthis).diffusion[g] / geo.dx[nx-1] * xslib(mprev).diffusion[g] / geo.dx[nx-2])
-            / (xslib(mthis).diffusion[g] / geo.dx[nx-1] + xslib(mprev).diffusion[g] / geo.dx[nx-2])};
+            * (xsthis.diffusion[g] / geo.dx[nx-1] * xsprev.diffusion[g] / geo.dx[nx-2])
+            / (xsthis.diffusion[g] / geo.dx[nx-1] + xsprev.diffusion[g] / geo.dx[nx-2])};
           A[g].sub[nx-2] = -dprev;
           A[g].dia[nx-1] = dprev
-            + (xslib(mthis).sigma_t[g] - xslib(mthis).scatter[0](g,g)) * geo.dx[nx-1];
-          A[g].dia[nx-1] += 2.0 * xslib(mthis).diffusion[g] / geo.dx[nx-1];
+            + (xsthis.sigma_t[g] - xsthis.scatter[0](g,g)) * geo.dx[nx-1];
+          A[g].dia[nx-1] += 2.0 * xsthis.diffusion[g] / geo.dx[nx-1];
         }
         break;
       }
@@ -123,15 +123,15 @@ std::vector<std::vector<double>> Diffusion_solver::build_fsource(
 
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto mthis{geo.mat_map[i]};
-    if (xslib(mthis).isfis)
+    const auto & xsthis{xslib(geo.mat_map[i])};
+    if (xsthis.isfis)
     {
       double xsum{0.0};
       for (int g = 0; g < xslib.ngroup(); ++g)
-        xsum += xslib(mthis).nusf[g] * flux[g][i];
+        xsum += xsthis.nusf[g] * flux[g][i];
       xsum *= geo.dx[i];
       for (int g = 0; g < xslib.ngroup(); ++g)
-        fsource[g][i] = xslib(mthis).chi[g] * xsum;
+        fsource[g][i] = xsthis.chi[g] * xsum;
     }
   }
 
@@ -148,10 +148,10 @@ std::vector<std::vector<double>> Diffusion_solver::build_upscatter(
 
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto mthis{geo.mat_map[i]};
+    const auto & xsthis{xslib(geo.mat_map[i])};
     for (int g = 0; g < xslib.ngroup(); ++g)
       for (int gprime = g+1; gprime < xslib.ngroup(); ++gprime)
-        upscatter[g][i] = xslib(mthis).scatter[0](gprime,g) * flux[gprime][i]; // TODO transpose?
+        upscatter[g][i] = xsthis.scatter[0](gprime,g) * flux[gprime][i]; // TODO transpose?
   }
 
   return upscatter;
@@ -163,9 +163,9 @@ std::vector<double> Diffusion_solver::build_downscatter(const std::vector<std::v
   downscatter.resize(geo.dx.size());
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto mthis{geo.mat_map[i]};
+    const auto & xsthis{xslib(geo.mat_map[i])};
     for (int gprime = 0; gprime < g; ++gprime)
-      downscatter[i] += xslib(mthis).scatter[0](gprime,g) * flux[i][gprime];
+      downscatter[i] += xsthis.scatter[0](gprime,g) * flux[i][gprime]; // TODO transpose?
   }
   return downscatter;
 }
@@ -175,11 +175,11 @@ double Diffusion_solver::fission_summation(const std::vector<std::vector<double>
   double xsum{0.0};
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto mthis{geo.mat_map[i]};
-    if (xslib(mthis).isfis)
+    const auto & xsthis{xslib(geo.mat_map[i])};
+    if (xsthis.isfis)
     {
       for (int g = 0; g < xslib.ngroup(); ++g)
-        xsum += xslib(mthis).nusf[g] * flux[g][i];
+        xsum += xsthis.nusf[g] * flux[g][i];
     }
   }
   return xsum;
