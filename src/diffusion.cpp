@@ -206,7 +206,7 @@ Result Diffusion_solver::solve() const
 {
   const std::vector<Tridiagonal_matrix> trimat{build_matrix()};
 
-  constexpr bool matrix_dump{true};
+  constexpr bool matrix_dump{false};
   if (matrix_dump)
   {
     std::ofstream ofs{"Amat.dat"};
