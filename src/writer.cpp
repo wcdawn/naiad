@@ -1,4 +1,5 @@
 #include "writer.hpp"
+#include "output.hpp"
 
 #include <fstream>
 

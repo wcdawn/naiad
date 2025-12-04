@@ -130,6 +130,13 @@ Input::Input(const std::string & filename_)
       ifs >> tol.max_iter_scatter;
     }
 
+    else if (card == "analysis_reference")
+    {
+      std::string aref;
+      ifs >> aref;
+      analysis_reference = str2enum_analysis_reference(aref);
+    }
+
     else
     {
       exception.warning(std::string{"UNKNOWN INPUT CARD: "} + card);

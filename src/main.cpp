@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "input.hpp"
 #include "output.hpp"
@@ -10,6 +11,7 @@
 #include "diffusion.hpp"
 #include "result.hpp"
 #include "writer.hpp"
+#include "analysis.hpp"
 
 using namespace naiad;
 
@@ -90,8 +92,24 @@ int main(int argc, char* argv[])
 
   naiad::out << "keff = " << std::format("{:.20f}", res.keff) << std::endl << std::endl;
 
+  std::unique_ptr<Analysis> analysis{nullptr};
+  switch (input.analysis_reference)
+  {
+    case (Analysis_reference::critical):
+      analysis = std::make_unique<Analysis_critical>(geo, res);
+      break;
+    default:
+      // do nothing
+      break;
+  }
+  if (analysis)
+    analysis->summary(naiad::out);
+
   const Writer writer{geo, res};
-  writer.write_flux(fname_stub + "_flux.csv");
+  const std::string fname_flux_csv{fname_stub + "_flux.csv"};
+  naiad::out << "writing flux csv on " << fname_flux_csv << std::endl;
+  writer.write_flux(fname_flux_csv);
+  naiad::out << std::endl;
 
   exception.summary(naiad::out);
 

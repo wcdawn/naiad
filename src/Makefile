@@ -2,7 +2,7 @@
 
 CXX = g++
 CXXFLAGS = -Wall -Wextra -O3 -std=c++23
-CXXFLAGS = -Wall -Wextra -O0 -g -std=c++23
+# CXXFLAGS = -Wall -Wextra -O0 -g -std=c++23
 
 OBJ = main.o \
 	  dense_matrix.o \
@@ -14,7 +14,8 @@ OBJ = main.o \
 	  diffusion.o \
 	  result.o \
 	  linalg.o \
-	  writer.o
+	  writer.o \
+	  analysis.o
 
 EXEC = naiad.x
 
@@ -30,8 +31,8 @@ clean:
 	$(RM) $(OBJ)
 	$(RM) $(EXEC)
 
-main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp exception_handler.hpp diffusion.hpp result.hpp writer.hpp
-input.o : input.hpp geometry.hpp xslibrary.hpp exception_handler.hpp
+main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp exception_handler.hpp diffusion.hpp result.hpp writer.hpp analysis.hpp
+input.o : input.hpp geometry.hpp xslibrary.hpp exception_handler.hpp analysis.hpp
 output.o : output.hpp
 geometry.o : geometry.hpp exception_handler.hpp
 xslibrary.o : xslibrary.hpp exception_handler.hpp
@@ -41,3 +42,4 @@ diffusion.o : diffusion.hpp input.hpp geometry.hpp xslibrary.hpp result.hpp exce
 result.o : result.hpp
 linalg.o : linalg.hpp
 writer.o : writer.hpp geometry.hpp result.hpp
+analysis.o : analysis.hpp geometry.hpp result.hpp exception_handler.hpp

@@ -3,9 +3,11 @@
 
 #include <string>
 #include <fstream>
+#include <memory>
 
 #include "geometry.hpp"
 #include "xslibrary.hpp"
+#include "analysis.hpp"
 
 namespace naiad
 {
@@ -69,6 +71,8 @@ class Input
 
     Boundary_condition bc_left{Boundary_condition::mirror};
     Boundary_condition bc_right{Boundary_condition::mirror};
+
+    Analysis_reference analysis_reference{Analysis_reference::none};
 
   private:
     const std::string filename;
