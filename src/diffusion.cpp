@@ -42,9 +42,9 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
       const double dnext{2.0
         * (xsthis.diffusion[g]/geo.dx[0] * xsnext.diffusion[g]/geo.dx[1])
         / (xsthis.diffusion[g]/geo.dx[0] + xsnext.diffusion[g]/geo.dx[1])};
+      A[g].sup[0] = -dnext;
       A[g].dia[0] = dnext + 
         (xsthis.sigma_t[g] - xsthis.scatter[0](g,g)) * geo.dx[0];
-      A[g].sup[0] = -dnext;
     }
   }
 
@@ -73,7 +73,7 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
   // BC at x=L, i=nx-1
   {
     const auto & xsprev{xslib(geo.mat_map[nx-2])};
-    const auto & xsthis{xslib(geo.mat_map[nx-1])};
+    const auto & xsthis{xslib(geo.mat_map.back())};
     switch (bc_right)
     {
       case (Boundary_condition::mirror):
@@ -83,8 +83,8 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
           const double dprev{2.0
             * (xsthis.diffusion[g] / geo.dx[nx-1] * xsprev.diffusion[g] / geo.dx[nx-2])
             / (xsthis.diffusion[g] / geo.dx[nx-1] + xsprev.diffusion[g] / geo.dx[nx-2])};
-          A[g].sub[nx-2] = -dprev;
-          A[g].dia[nx-1] = dprev
+          A[g].sub.back() = -dprev;
+          A[g].dia.back() = dprev
             + (xsthis.sigma_t[g] - xsthis.scatter[0](g,g)) * geo.dx[nx-1];
         }
         break;
@@ -96,10 +96,10 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
           const double dprev{2.0
             * (xsthis.diffusion[g] / geo.dx[nx-1] * xsprev.diffusion[g] / geo.dx[nx-2])
             / (xsthis.diffusion[g] / geo.dx[nx-1] + xsprev.diffusion[g] / geo.dx[nx-2])};
-          A[g].sub[nx-2] = -dprev;
-          A[g].dia[nx-1] = dprev
+          A[g].sub.back() = -dprev;
+          A[g].dia.back() = dprev
             + (xsthis.sigma_t[g] - xsthis.scatter[0](g,g)) * geo.dx[nx-1];
-          A[g].dia[nx-1] += 2.0 * xsthis.diffusion[g] / geo.dx[nx-1];
+          A[g].dia.back() += 2.0 * xsthis.diffusion[g] / geo.dx[nx-1];
         }
         break;
       }
