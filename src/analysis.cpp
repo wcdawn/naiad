@@ -43,6 +43,7 @@ Analysis_reference str2enum_analysis_reference(const std::string & str)
 
 std::vector<double> Analysis::error_linf() const
 {
+  constexpr bool dump{false};
   const std::vector<std::vector<double>> flux_exact{exact_flux()};
 
   // First, extrapolate to estimate phi(0.0) in the first group.
@@ -54,11 +55,24 @@ std::vector<double> Analysis::error_linf() const
     for (double & x : f)
       x /= phi_zero;
 
+  const std::vector<double> xcenter{geo.xcenter()};
+
   std::vector<double> linf_group;
   linf_group.resize(flux_exact.size());
   for (std::size_t g = 0; g < flux_exact.size(); ++g)
+  {
+    std::unique_ptr<std::ofstream> ofs;
+    if (dump)
+      ofs = std::make_unique<std::ofstream>(std::format("analytic_g{:d}.csv", g));
+    if (ofs)
+      *ofs << "x [cm] , exact , calculated\n";
     for (std::size_t i = 0; i < flux_exact[g].size(); ++i)
+    {
+      if (ofs)
+        *ofs << std::format("{:.16e} , {:.16e} , {:.16e}\n", xcenter[i], flux_exact[g][i], flux_analysis[g][i]);
       linf_group[g] = std::max(linf_group[g], std::abs(flux_exact[g][i] - flux_analysis[g][i]));
+    }
+  }
   return linf_group;
 }
 
@@ -95,7 +109,8 @@ double Analysis_critical::exact_keff() const
 std::vector<std::vector<double>> Analysis_onegroup::exact_flux() const
 {
   const std::vector<double> xcenter{geo.xcenter()};
-  const double Lx{2.0 * geo.xleft().back()};
+  const double Lx{2.0 * geo.xright().back()};
+  std::cout << "LX=" << Lx << std::endl;
 
   std::vector<std::vector<double>> flux;
   flux.resize(1);
