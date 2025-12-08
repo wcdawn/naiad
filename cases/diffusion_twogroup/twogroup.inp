@@ -1,4 +1,4 @@
-xslib onegroup.xs
+xslib twogroup.xs
 
 # diamond_difference , linear_discontinuous , step_characteristic , linear_characteristic , quadratic_characteristic
 spatial_method diamond_difference
@@ -10,10 +10,13 @@ dx 10.0 10.0 10.0 10.0 10.0
 # TODO this needs to be implemented to work on mappings between strings/int whatever
 mat_map 0 0 0 0 0
 
-refine 16
+refine 8
 
 snorder 0
 bc_left mirror
 bc_right zero
 
-analysis_reference onegroup
+analysis_reference twogroup
+
+tol_phi 1e-10
+tol_k 1e-10
