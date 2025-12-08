@@ -110,7 +110,7 @@ std::vector<std::vector<double>> Analysis_onegroup::exact_flux() const
 {
   const std::vector<double> xcenter{geo.xcenter()};
   const double Lx{2.0 * geo.xright().back()};
-  std::cout << "LX=" << Lx << std::endl;
+  constexpr double phi0{1.0};
 
   std::vector<std::vector<double>> flux;
   flux.resize(1);
@@ -118,7 +118,7 @@ std::vector<std::vector<double>> Analysis_onegroup::exact_flux() const
     f.resize(xcenter.size());
 
   for (std::size_t i = 0; i < xcenter.size(); ++i)
-    flux[0][i] = std::cos(M_PI * xcenter[i] / Lx);
+    flux[0][i] = phi0 * std::cos(M_PI * xcenter[i] / Lx);
 
   return flux;
 }
@@ -127,9 +127,43 @@ double Analysis_onegroup::exact_keff() const
 {
   const double Lx{2.0 * geo.xright().back()};
   const double Bsq{std::pow(M_PI / Lx, 2)};
-  const auto xs{xslib("FUEL")};
+  const auto & xs{xslib("FUEL")};
   const double rem{xs.sigma_t[0] - xs.scatter[0](0,0)};
   return xs.nusf[0] / (xs.diffusion[0] * Bsq + rem);
+}
+
+std::vector<std::vector<double>> Analysis_twogroup::exact_flux() const
+{
+  const double Lx{2.0 * geo.xright().back()};
+  const double Bsq{std::pow(M_PI / Lx, 2)};
+
+  std::vector<std::vector<double>> flux;
+  flux.resize(2);
+  for (auto & f : flux)
+    f.resize(geo.dx.size());
+
+  constexpr double phi0{1.0};
+  const auto & xs{xslib("FUEL")};
+  const double rem2{xs.sigma_t[1] - xs.scatter[0](1,1)};
+  const double ratio{xs.scatter[0](0,1) / (xs.diffusion[1] * Bsq + rem2)};
+  const std::array<double,2> factor{phi0, phi0*ratio};
+
+  const std::vector<double> xcenter{geo.xcenter()};
+  for (std::size_t g = 0; g < flux.size(); ++g)
+    for (std::size_t i = 0; i < flux[g].size(); ++i)
+      flux[g][i] = factor[g] * std::cos(M_PI * xcenter[i] / Lx);
+  return flux;
+}
+
+double Analysis_twogroup::exact_keff() const
+{
+  const double Lx{2.0 * geo.xright().back()};
+  const double Bsq{std::pow(M_PI / Lx, 2)};
+  const auto & xs{xslib("FUEL")};
+  const double rem1{xs.sigma_t[0] - xs.scatter[0](0,0)};
+  const double rem2{xs.sigma_t[1] - xs.scatter[0](1,1)};
+  const double ratio{xs.scatter[0](0,1) / (xs.diffusion[1] * Bsq + rem2)};
+  return (xs.nusf[0] + xs.nusf[1]*ratio) / (xs.diffusion[0] * Bsq + rem1);
 }
 
 } // namespace naiad

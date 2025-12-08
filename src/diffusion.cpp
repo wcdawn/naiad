@@ -150,8 +150,11 @@ std::vector<std::vector<double>> Diffusion_solver::build_upscatter(
   {
     const auto & xsthis{xslib(geo.mat_map[i])};
     for (int g = 0; g < xslib.ngroup(); ++g)
+    {
       for (int gprime = g+1; gprime < xslib.ngroup(); ++gprime)
-        upscatter[g][i] = xsthis.scatter[0](gprime,g) * flux[gprime][i]; // TODO transpose?
+        upscatter[g][i] += xsthis.scatter[0](gprime,g) * flux[gprime][i]; // TODO transpose?
+      upscatter[g][i] *= geo.dx[i];
+    }
   }
 
   return upscatter;
@@ -165,7 +168,8 @@ std::vector<double> Diffusion_solver::build_downscatter(const std::vector<std::v
   {
     const auto & xsthis{xslib(geo.mat_map[i])};
     for (int gprime = 0; gprime < g; ++gprime)
-      downscatter[i] += xsthis.scatter[0](gprime,g) * flux[i][gprime]; // TODO transpose?
+      downscatter[i] += xsthis.scatter[0](gprime,g) * flux[gprime][i]; // TODO transpose?
+    downscatter[i] *= geo.dx[i];
   }
   return downscatter;
 }
@@ -246,7 +250,7 @@ Result Diffusion_solver::solve() const
       std::vector<double> q;
       q.resize(geo.dx.size());
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
-        q[i] = fsource[g][i]/keff + upscatter[g][i]  + downscatter[g];
+        q[i] = fsource[g][i]/keff + upscatter[g][i]  + downscatter[i];
 
       flux[g] = trid(trimat[g].sub, trimat[g].dia, trimat[g].sup, q);
     }
