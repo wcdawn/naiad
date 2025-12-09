@@ -75,6 +75,15 @@ class Analysis_twogroup : public Analysis
     double exact_keff() const override;
 };
 
+class Analysis_tworegion : public Analysis
+{
+  public:
+    using Analysis::Analysis;
+  protected:
+    std::vector<std::vector<double>> exact_flux() const override;
+    double exact_keff() const override;
+};
+
 } // namespace naiad
 
 #endif

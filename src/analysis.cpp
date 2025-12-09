@@ -43,7 +43,7 @@ Analysis_reference str2enum_analysis_reference(const std::string & str)
 
 std::vector<double> Analysis::error_linf() const
 {
-  constexpr bool dump{false};
+  constexpr bool dump{true};
   const std::vector<std::vector<double>> flux_exact{exact_flux()};
 
   // First, extrapolate to estimate phi(0.0) in the first group.
@@ -164,6 +164,38 @@ double Analysis_twogroup::exact_keff() const
   const double rem2{xs.sigma_t[1] - xs.scatter[0](1,1)};
   const double ratio{xs.scatter[0](0,1) / (xs.diffusion[1] * Bsq + rem2)};
   return (xs.nusf[0] + xs.nusf[1]*ratio) / (xs.diffusion[0] * Bsq + rem1);
+}
+
+std::vector<std::vector<double>> Analysis_tworegion::exact_flux() const
+{
+  constexpr double BF{0.01716859736590981012};
+  constexpr double LF{80.0};
+  constexpr double LR{100.0};
+  const auto & xs_refl{xslib("REFL")};
+  const double xs_refl_rem{xs_refl.sigma_t[0] - xs_refl.scatter[0](0,0)};
+  const auto KR{std::sqrt(xs_refl_rem / xs_refl.diffusion[0])};
+  constexpr double phi0{1.0};
+  const std::vector<double> xcenter{geo.xcenter()};
+  std::vector<std::vector<double>> flux;
+  flux.resize(1);
+  flux[0].resize(xcenter.size());
+  for (std::size_t i = 0; i < xcenter.size(); ++i)
+  {
+    if (xcenter[i] <= LF)
+      flux[0][i] = phi0 * std::cos(BF * xcenter[i]);
+    else
+      flux[0][i] = phi0 * std::cos(BF * LF)
+        * (std::cosh(KR * (xcenter[i] - LF)) - std::sinh(KR * (xcenter[i] - LF)) / std::tanh(KR*(LR - LF)));
+  }
+  return flux;
+}
+
+double Analysis_tworegion::exact_keff() const
+{
+  constexpr double BF{0.01716859736590981012};
+  const auto & xs_fuel{xslib("FUEL")};
+  const double xs_fuel_rem{xs_fuel.sigma_t[0] - xs_fuel.scatter[0](0,0)};
+  return xs_fuel.nusf[0] / (xs_fuel.diffusion[0] * std::pow(BF, 2) + xs_fuel_rem);
 }
 
 } // namespace naiad

@@ -103,6 +103,8 @@ int main(int argc, char* argv[])
       break;
     case (Analysis_reference::twogroup):
       analysis = std::make_unique<Analysis_twogroup>(geo, xslib, res);
+    case (Analysis_reference::tworegion):
+      analysis = std::make_unique<Analysis_tworegion>(geo, xslib, res);
     default:
       // do nothing
       break;

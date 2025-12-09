@@ -1,0 +1,22 @@
+xslib tworeg.xs
+
+# diamond_difference , linear_discontinuous , step_characteristic , linear_characteristic , quadratic_characteristic
+spatial_method diamond_difference
+
+nx 5
+
+dx 20.0 20.0 20.0 20.0 20.0
+#mat_map fuel
+# TODO this needs to be implemented to work on mappings between strings/int whatever
+mat_map 0 0 0 0 1
+
+refine 8
+
+snorder 0
+bc_left mirror
+bc_right zero
+
+analysis_reference twogroup
+
+tol_phi 1e-10
+tol_k 1e-10
