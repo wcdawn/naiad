@@ -1,14 +1,11 @@
 import numpy as np
-import scipy
-import scipy.special
-import scipy.optimize
 import matplotlib.pyplot as plt
 import sys
 
 import mpmath
 
 # TODO probably too fine
-mpmath.mp.dps = 64
+mpmath.mp.dps = 32
 print(mpmath.mp)
 
 import plot_settings
@@ -34,7 +31,7 @@ def bisect(f, a, b, tol):
         fhi = f(xhi)
         xmid = mpmath.mpf(0.5) * (xlo + xhi)
         fmid = f(xmid)
-        if mpmath.fabs(fmid) < tol:
+        if (mpmath.fabs(fmid) < tol) or ((xhi - xlo) < tol):
             return xmid
         if mpmath.sign(flo) == mpmath.sign(fmid):
             xlo = xmid
@@ -64,50 +61,80 @@ def deriv_legendre_eval(n, x):
         return n * legendre_eval(n - 1, x) + x * deriv_legendre_eval(n - 1, x)
 
 
-def legendre_zeros_old(n):
-    xi, wi = scipy.special.roots_legendre(n)
-    return rewrap(xi)
-
-
 def legendre_zeros(n):
-    xi = []
-
-    if (n + 1) % 2 == 0:
-        xi.append(mpmath.mpf(0.0))
     if n == 1:
-        return xi
+        return [mpmath.mpf(0)]
 
     f = lambda x: legendre_eval(n, x)
     atol = mpmath.mpf(1e-32)
 
-    # NOTE: this is actually too fine!
+    # NOTE: this is actually finer than needed
     # there are only n/2 zeros in this range since we're searching the half-range
     equal_width = mpmath.mpf(1.0) / n
-    regions = [mpmath.mpf(0.0)]
+    regions = [atol]
     for i in range(n):
         regions.append((i + 1) * equal_width)
     regions[-1] = mpmath.mpf(1.0)
-    regions[0] = atol
 
-    for i in range(n):
-        a = regions[i]
-        b = regions[i + 1]
-        if np.sign(f(a)) == np.sign(f(b)):
-            continue
-        x = bisect(f, a, b, atol)
-        if x == mpmath.mpf(0):
-            continue
-        xi.append(x)
+    # first pass is to look at a uniform grid
+    pass_count = 0
+    while True:
+        if n % 2 == 1:
+            xi = [mpmath.mpf(0)]
+        else:
+            xi = []
+        for i in range(len(regions) - 1):
+            a = regions[i]
+            b = regions[i + 1]
+            if mpmath.sign(f(a)) == mpmath.sign(f(b)):
+                continue
+            x = bisect(f, a, b, atol)
+            if x > mpmath.mpf(0):
+                xi.append(x)
+        pass_count += 1
+        print(
+            "n=",
+            n,
+            "pass number",
+            pass_count,
+            "expected",
+            int((n + 1) / 2),
+            "found",
+            len(xi),
+        )
+        if (len(xi) == int((n + 1) / 2)) or (pass_count == 10):
+            break
+        else:
+            regions_old = regions.copy()
+            regions = []
+            for i in range(len(regions_old) - 1):
+                regions.append(regions_old[i])
+                regions.append(mpmath.mpf(0.5) * (regions_old[i] + regions_old[i + 1]))
+            regions.append(regions_old[-1])
 
+    if len(xi) != int((n + 1) / 2):
+        print("n=", n, "expected=", int((n + 1) / 2), "found=", len(xi))
+        print("failed to find all")
+        x = np.linspace(0.0, 1.0, 1024)
+        y = np.zeros_like(x)
+        for i in range(len(x)):
+            y[i] = legendre_eval(n, x[i])
+        print(xi)
+        xi_dble = np.zeros(len(xi))
+        for i in range(len(xi)):
+            xi_dble[i] = float(xi[i])
+        plt.figure()
+        plt.plot(x, y)
+        plt.plot((0, 1), (0, 0), "-k", lw=1, label="_hide")
+        plt.plot(xi_dble, np.zeros_like(xi_dble), "x")
+        plt.show()
+        # sys.exit(1)
+        return
+
+    # insert the negative symmetric points
     for x in xi:
         if x > mpmath.mpf(0):
             xi.append(-x)
-
-    if len(xi) != n:
-        print("n=", n, "found=", len(xi))
-        print("xi=", xi)
-        print("Failed to find all roots")
-        sys.exit(1)
 
     xi = sorted(xi)
     return rewrap(xi)
@@ -150,7 +177,7 @@ def legendre_weights(n, xi):
 
 if __name__ == "__main__":
 
-    NMAX = 8
+    NMAX = 16
     fname = "gauss_legendre.txt"
 
     open(fname, "w")
