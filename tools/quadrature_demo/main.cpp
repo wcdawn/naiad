@@ -5,6 +5,7 @@
 #include <string>
 
 #include "quadrature1d.hpp"
+#include "quadrature_gauss_legendre.hpp"
 
 double fun(double x)
 {

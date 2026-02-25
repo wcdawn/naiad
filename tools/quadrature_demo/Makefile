@@ -3,7 +3,9 @@
 CXX = g++
 CFLAGS = -Wall -Wextra -std=c++23 -O3
 
-OBJ = quadrature1d.o main.o
+OBJ = main.o \
+	  quadrature1d.o \
+	  quadrature_gauss_legendre.o
 
 EXEC = quad.x
 
@@ -18,8 +20,9 @@ $(EXEC) : $(OBJ)
 %.o : %.cpp
 	$(CXX) $(CFLAGS) -c $<
 
-main.o : quadrature1d.hpp
-quadrature1d.o : quadrature1d.hpp ../gauss_legendre.txt
+main.o : quadrature1d.hpp quadrature_gauss_legendre.hpp
+quadrature1d.o : quadrature1d.hpp
+quadrature_gauss_legendre.o : quadrature_gauss_legendre.hpp quadrature1d.hpp
 
 clean:
 	$(RM) $(OBJ)
