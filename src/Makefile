@@ -15,7 +15,9 @@ OBJ = main.o \
 	  result.o \
 	  linalg.o \
 	  writer.o \
-	  analysis.o
+	  analysis.o \
+	  quadrature1d.o \
+	  quadrature_gauss_legendre.o
 
 EXEC = naiad.x
 
@@ -43,3 +45,5 @@ result.o : result.hpp
 linalg.o : linalg.hpp
 writer.o : writer.hpp geometry.hpp result.hpp
 analysis.o : analysis.hpp geometry.hpp result.hpp exception_handler.hpp xslibrary.hpp
+quadrature1d.o : quadrature1d.hpp
+quadrature_gauss_legendre.o : quadrature_gauss_legendre.hpp quadrature1d.hpp

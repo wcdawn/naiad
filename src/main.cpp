@@ -12,6 +12,8 @@
 #include "result.hpp"
 #include "writer.hpp"
 #include "analysis.hpp"
+#include "quadrature1d.hpp"
+#include "quadrature_gauss_legendre.hpp"
 
 using namespace naiad;
 
@@ -88,6 +90,7 @@ int main(int argc, char* argv[])
   else
   {
     // transport
+    const std::unique_ptr<Quadrature_gauss_legendre> quadrature{std::make_unique<Quadrature_gauss_legendre>(input.snorder)};
   }
 
   naiad::out << "keff = " << std::format("{:.20f}", res.keff) << std::endl << std::endl;
