@@ -90,7 +90,15 @@ int main(int argc, char* argv[])
   else
   {
     // transport
+    // for now, just play with the quadrature
     const std::unique_ptr<Quadrature_gauss_legendre> quadrature{std::make_unique<Quadrature_gauss_legendre>(input.snorder)};
+
+    const double exact{2.0*std::sin(1.0)};
+    const std::function<double(double)> fun{[](double x){return std::cos(x);}};
+    const double integral{quadrature->integrate(fun, -1.0, 1.0)};
+
+    std::cout << std::format("n={:d} integral={:.16e} exact={:.16e} difference={:.16e}", quadrature->get_npoints(), integral, exact, exact-integral) << std::endl;
+
   }
 
   naiad::out << "keff = " << std::format("{:.20f}", res.keff) << std::endl << std::endl;
