@@ -5,7 +5,7 @@ nmoment 1
 # c = 1.1
 # critical half-thickness b=2.11330966 MFP
 name fuel
-total
+sigma_t
 1.0
 scatter 0
 0.5

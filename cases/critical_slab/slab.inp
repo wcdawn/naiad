@@ -16,3 +16,5 @@ refine 3
 
 bc_left mirror
 bc_right vacuum
+
+snorder 64
