@@ -17,7 +17,8 @@ OBJ = main.o \
 	  writer.o \
 	  analysis.o \
 	  quadrature1d.o \
-	  quadrature_gauss_legendre.o
+	  quadrature_gauss_legendre.o \
+	  transport.o
 
 EXEC = naiad.x
 
@@ -33,7 +34,7 @@ clean:
 	$(RM) $(OBJ)
 	$(RM) $(EXEC)
 
-main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp exception_handler.hpp diffusion.hpp result.hpp writer.hpp analysis.hpp
+main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp exception_handler.hpp diffusion.hpp result.hpp writer.hpp analysis.hpp transport.hpp
 input.o : input.hpp geometry.hpp xslibrary.hpp exception_handler.hpp analysis.hpp
 output.o : output.hpp
 geometry.o : geometry.hpp exception_handler.hpp
@@ -47,3 +48,4 @@ writer.o : writer.hpp geometry.hpp result.hpp
 analysis.o : analysis.hpp geometry.hpp result.hpp exception_handler.hpp xslibrary.hpp
 quadrature1d.o : quadrature1d.hpp
 quadrature_gauss_legendre.o : quadrature_gauss_legendre.hpp quadrature1d.hpp
+transport.o : input.hpp geometry.hpp xslibrary.hpp result.hpp quadrature1d.hpp exception_handler.hpp
