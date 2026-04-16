@@ -114,7 +114,7 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
 }
 
 std::vector<std::vector<double>> Diffusion_solver::build_fsource(
-    const std::vector<std::vector<double>> & flux) const
+  const std::vector<std::vector<double>> & flux) const
 {
   std::vector<std::vector<double>> fsource;
   fsource.resize(xslib.ngroup());
@@ -136,10 +136,10 @@ std::vector<std::vector<double>> Diffusion_solver::build_fsource(
   }
 
   return fsource;
-};
+}
 
 std::vector<std::vector<double>> Diffusion_solver::build_upscatter(
-    const std::vector<std::vector<double>> & flux) const
+  const std::vector<std::vector<double>> & flux) const
 {
   std::vector<std::vector<double>> upscatter;
   upscatter.resize(xslib.ngroup());
@@ -152,7 +152,7 @@ std::vector<std::vector<double>> Diffusion_solver::build_upscatter(
     for (int g = 0; g < xslib.ngroup(); ++g)
     {
       for (int gprime = g+1; gprime < xslib.ngroup(); ++gprime)
-        upscatter[g][i] += xsthis.scatter[0](gprime,g) * flux[gprime][i]; // TODO transpose?
+        upscatter[g][i] += xsthis.scatter[0](gprime,g) * flux[gprime][i];
       upscatter[g][i] *= geo.dx[i];
     }
   }
@@ -160,7 +160,8 @@ std::vector<std::vector<double>> Diffusion_solver::build_upscatter(
   return upscatter;
 }
 
-std::vector<double> Diffusion_solver::build_downscatter(const std::vector<std::vector<double>> & flux, const int g) const
+std::vector<double> Diffusion_solver::build_downscatter(
+  const std::vector<std::vector<double>> & flux, const int g) const
 {
   std::vector<double> downscatter;
   downscatter.resize(geo.dx.size());
@@ -168,13 +169,14 @@ std::vector<double> Diffusion_solver::build_downscatter(const std::vector<std::v
   {
     const auto & xsthis{xslib(geo.mat_map[i])};
     for (int gprime = 0; gprime < g; ++gprime)
-      downscatter[i] += xsthis.scatter[0](gprime,g) * flux[gprime][i]; // TODO transpose?
+      downscatter[i] += xsthis.scatter[0](gprime,g) * flux[gprime][i];
     downscatter[i] *= geo.dx[i];
   }
   return downscatter;
 }
 
-double Diffusion_solver::fission_summation(const std::vector<std::vector<double>> & flux) const
+double Diffusion_solver::fission_summation(
+  const std::vector<std::vector<double>> & flux) const
 {
   double xsum{0.0};
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
@@ -183,15 +185,15 @@ double Diffusion_solver::fission_summation(const std::vector<std::vector<double>
     if (xsthis.isfis)
     {
       for (int g = 0; g < xslib.ngroup(); ++g)
-        xsum += xsthis.nusf[g] * flux[g][i];
+        xsum += xsthis.nusf[g] * flux[g][i] * geo.dx[i];
     }
   }
   return xsum;
 }
 
 double Diffusion_solver::convergence_phi(
-    const std::vector<std::vector<double>> & flux,
-    const std::vector<std::vector<double>> & flux_old)
+  const std::vector<std::vector<double>> & flux,
+  const std::vector<std::vector<double>> & flux_old)
 {
   double xdif{0.0};
   double xmax{0.0};
@@ -263,8 +265,8 @@ Result Diffusion_solver::solve() const
     const double delta_phi{convergence_phi(flux, flux_old)};
 
     naiad::out << "it=" << std::format("{:4d}", iter)
-               << " dk=" << std::format("{:8.1e}", delta_k)
-               << " dphi=" << std::format("{:8.1e}", delta_phi)
+               << " dk=" << std::format("{:7.1e}", delta_k)
+               << " dphi=" << std::format("{:7.1e}", delta_phi)
                << " keff=" << std::format("{:8.6f}", keff)
                << std::endl;
 
