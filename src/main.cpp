@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   {
     // transport
     const std::unique_ptr<Quadrature_gauss_legendre> quadrature{std::make_unique<Quadrature_gauss_legendre>(input.snorder)};
-    const Transport_solver transport{geo, input.bc_left, input.bc_right, xslib, input.tolerance(), quadrature.get()};
+    const Transport_solver transport{geo, input.spatial_method, input.bc_left, input.bc_right, xslib, input.tolerance(), quadrature.get()};
     res = transport.solve();
   }
 
