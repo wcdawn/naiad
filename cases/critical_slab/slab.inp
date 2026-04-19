@@ -10,7 +10,7 @@ dx 2.113309666
 # TODO this needs to be implemented to work on mappings between strings/int whatever
 mat_map 0
 
-refine 16
+refine 15
 
 bc_left mirror
 bc_right vacuum
