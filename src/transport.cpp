@@ -143,17 +143,6 @@ Result Transport_solver::solve() const
       x = 1.0;
   }
 
-  // TODO remove
-  // for mirror boundary
-  std::vector<std::vector<double>> psi_left;
-  psi_left.resize(xslib.ngroup());
-  for (auto & psi : psi_left)
-    psi.resize(quad->get_npoints());
-  std::vector<std::vector<double>> psi_right;
-  psi_right.resize(xslib.ngroup());
-  for (auto & psi : psi_right)
-    psi.resize(quad->get_npoints());
-
   double keff{1.0};
   double fsum{1.0};
 
