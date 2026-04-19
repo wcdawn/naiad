@@ -171,7 +171,7 @@ Result Transport_solver::solve() const
         const auto fluxg_old{flux[g]};
         flux[g] = sweeper->sweep(flux[g], qmost, g);
         const double dphi{convergence_phi_scat(flux[g], fluxg_old)};
-        naiad::out << "   ... scat " << inner << " dphi=" << std::format("{:7.1e}", dphi) << std::endl;
+        naiad::out << "   ... scatter " << inner << " dphi=" << std::format("{:7.1e}", dphi) << std::endl;
         if (dphi < tol.scatter)
           break;
       }
