@@ -1,0 +1,17 @@
+xslib ../mgxs_onegroup.xs
+
+# the original description is strange
+# it's still the slab critical half-width
+# but then the water reflector only appears on one side
+# short story: multiply the Pu thickness in the report by two
+
+nx 2
+dx 2.956802 3.063725
+mat_map 0 2
+
+spatial_method diamond_difference
+snorder 32
+refine 10
+
+bc_left vacuum
+bc_right vacuum

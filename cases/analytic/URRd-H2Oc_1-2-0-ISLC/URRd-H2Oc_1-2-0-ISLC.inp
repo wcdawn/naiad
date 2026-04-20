@@ -1,0 +1,13 @@
+xslib ../mgxs_twogroup.xs
+
+nx 2
+dx 0.341011 0.751023
+mat_map 7 9
+
+spatial_method diamond_difference
+snorder 64
+refine 10
+
+bc_left mirror
+bc_right mirror
+max_iter_scatter 1000

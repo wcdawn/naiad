@@ -1,0 +1,12 @@
+xslib ../mgxs_threegroup.xs
+
+nx 1
+dx 10.0
+mat_map 0
+
+spatial_method diamond_difference
+snorder 32
+refine 10
+
+bc_left mirror
+bc_right mirror

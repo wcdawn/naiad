@@ -1,0 +1,12 @@
+xslib ../mgxs_onegroup.xs
+
+nx 4
+dx 0.317337461 5.119720083 0.317337461 2.002771002
+mat_map 10 9 10 11
+
+spatial_method diamond_difference
+snorder 32
+refine 10
+
+bc_left vacuum
+bc_right vacuum
