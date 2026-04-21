@@ -1,0 +1,17 @@
+xslib mgxs_mod.xs
+
+spatial_method diamond_difference
+
+nx 1
+
+dx 3.2
+mat_map 0
+
+refine 15
+
+bc_left mirror
+bc_right vacuum
+
+snorder 32
+max_iter_phi 1000
+max_iter_scatter 100
