@@ -1,4 +1,5 @@
 #include "transport.hpp"
+#include <omp.h>
 
 #include "exception_handler.hpp"
 
@@ -222,11 +223,25 @@ Transport_sweeper::Transport_sweeper(const Geometry & geo_, const Boundary_condi
 std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> & fluxg_in, const std::vector<double> & qmost, const int g)
 {
   const std::vector<double> fluxg_old{fluxg_in};
-  std::vector<double> fluxg;
-  fluxg.resize(geo.dx.size());
 
+  int nthread;
+#pragma omp parallel default(none) shared(nthread)
+  {
+    nthread = omp_get_num_threads();
+  }
+
+  // I have a copy for each thread
+  // could be performed with locking instead
+  std::vector<std::vector<double>> parfluxg;
+  parfluxg.resize(nthread);
+  for (auto & fluxg : parfluxg)
+    fluxg.resize(geo.dx.size());
+
+#pragma omp parallel for default(none) shared (quad, bc_left, bc_right, exception, psi_left, psi_right) \
+  shared (fluxg_old, g, qmost) shared(parfluxg)
   for (std::size_t j = 0; j < quad->get_npoints(); ++j)
   {
+    const int myid{omp_get_thread_num()};
     // TODO negative flux fixup
     const auto qp{quad->get_points()[j]};
     if (qp.x > 0.0)
@@ -254,7 +269,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
         const double q{0.5*(qmost[i] + fluxg_old[i]*xsthis.scatter[0](g,g)*geo.dx[i])};
         const double psi_center{psi_edge / (1.0 + 0.5*xsthis.sigma_t[g]*geo.dx[i]/qp.x) 
           + q/(xsthis.sigma_t[g]*geo.dx[i] + 2.0*qp.x)};
-        fluxg[i] += qp.w * psi_center;
+        parfluxg[myid][i] += qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
         if (i == geo.dx.size()-1ul)
           psi_right[g][j] = psi_edge;
@@ -285,7 +300,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
         const double q{0.5*(qmost[i] + fluxg_old[i]*xsthis.scatter[0](g,g)*geo.dx[i])};
         const double psi_center{psi_edge / (1.0 - 0.5*xsthis.sigma_t[g]*geo.dx[i]/qp.x)
           + q/(xsthis.sigma_t[g]*geo.dx[i] - 2.0*qp.x)};
-        fluxg[i] += qp.w * psi_center;
+        parfluxg[myid][i] += qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
         // make sure to store the left boundary for the opposite directions
         if (i == 0)
@@ -293,6 +308,14 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       }
     }
   }
+
+  std::vector<double> fluxg;
+  fluxg.resize(geo.dx.size());
+
+  for (int n = 0; n < nthread; ++n)
+    for (std::size_t i = 0; i < geo.dx.size(); ++i)
+      fluxg[i] += parfluxg[n][i];
+
   return fluxg;
 }
 
