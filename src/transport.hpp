@@ -16,7 +16,7 @@ class Transport_sweeper // abstract base class
 {
   public:
     Transport_sweeper(const Geometry & geo_, const Boundary_condition & bc_left_, const Boundary_condition & bc_right,
-        const XSLibrary & xslib_, const Quadrature1d * const quad_);
+        const XSLibrary & xslib_, const Quadrature1d * const quad_, const int pnorder_);
     virtual std::vector<double> sweep(const std::vector<double> & flux, const std::vector<double> & qmost, int g) = 0; // may update psi_left and psi_right
     virtual ~Transport_sweeper(){}
   protected:
@@ -25,6 +25,7 @@ class Transport_sweeper // abstract base class
     const Boundary_condition bc_right;
     const XSLibrary & xslib;
     const Quadrature1d * const quad;
+    const int pnorder;
 
     // [group][quadrature_jidx]
     std::vector<std::vector<double>> psi_left;
@@ -43,7 +44,7 @@ class Transport_solver
   public:
     Transport_solver(const Geometry & geo_, const Spatial_method & spatial_method,
       const Boundary_condition & bc_left_, const Boundary_condition & bc_right,
-      const XSLibrary & xslib_, const Tolerance & tol_, const Quadrature1d * const quad_);
+      const XSLibrary & xslib_, const Tolerance & tol_, const Quadrature1d * const quad_, const int pnorder_);
     Result solve() const;
   private:
     const Geometry & geo;
@@ -52,6 +53,7 @@ class Transport_solver
     const XSLibrary & xslib;
     const Tolerance & tol;
     const Quadrature1d * const quad;
+    const int pnorder;
 
     std::unique_ptr<Transport_sweeper> sweeper;
 

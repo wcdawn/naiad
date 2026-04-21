@@ -17,6 +17,7 @@ class Writer
     {}
 
     void write_flux(const std::string & fname) const;
+    void write_phi(const std::string & fname) const;
 
   private:
     const Geometry & geo;

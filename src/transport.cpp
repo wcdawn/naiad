@@ -9,13 +9,13 @@ namespace naiad
 Transport_solver::Transport_solver(
   const Geometry & geo_, const Spatial_method & spatial_method,
   const Boundary_condition & bc_left_, const Boundary_condition & bc_right_,
-  const XSLibrary & xslib_, const Tolerance & tol_, const Quadrature1d * const quad_)
-  : geo{geo_}, bc_left{bc_left_}, bc_right{bc_right_}, xslib{xslib_}, tol{tol_}, quad{quad_}
+  const XSLibrary & xslib_, const Tolerance & tol_, const Quadrature1d * const quad_, const int pnorder_)
+  : geo{geo_}, bc_left{bc_left_}, bc_right{bc_right_}, xslib{xslib_}, tol{tol_}, quad{quad_}, pnorder{pnorder_}
 {
   switch (spatial_method)
   {
     case (Spatial_method::diamond_difference):
-      sweeper = std::make_unique<Diamond_difference_sweeper>(geo, bc_left, bc_right, xslib, quad);
+      sweeper = std::make_unique<Diamond_difference_sweeper>(geo, bc_left, bc_right, xslib, quad, pnorder);
       break;
     default:
       exception.fatal(std::string{"Unimplemented spatial transport method. requested="} + enum2str(spatial_method));
@@ -205,12 +205,12 @@ Result Transport_solver::solve() const
 
   naiad::out << std::endl;
 
-  return {flux, keff};
+  return {flux, keff, pnorder};
 }
 
 Transport_sweeper::Transport_sweeper(const Geometry & geo_, const Boundary_condition & bc_left_, const Boundary_condition & bc_right_,
-    const XSLibrary & xslib_, const Quadrature1d * const quad_)
-  : geo{geo_}, bc_left{bc_left_}, bc_right{bc_right_}, xslib{xslib_}, quad{quad_}
+    const XSLibrary & xslib_, const Quadrature1d * const quad_, const int pnorder_)
+  : geo{geo_}, bc_left{bc_left_}, bc_right{bc_right_}, xslib{xslib_}, quad{quad_}, pnorder{pnorder_}
 {
   psi_left.resize(xslib.ngroup());
   for (auto & psi : psi_left)
@@ -230,18 +230,20 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
     nthread = omp_get_num_threads();
   }
 
-  // I have a copy for each thread
-  // could be performed with locking instead
-  std::vector<std::vector<double>> parfluxg;
+  // NOTE: I have stored a copy for each thread.
+  // This could be performed with locking instead.
+  // TODO need to do better with indexing...
+  std::vector<std::vector<double>> parfluxg; // [nthread][nx]
   parfluxg.resize(nthread);
   for (auto & fluxg : parfluxg)
-    fluxg.resize(geo.dx.size());
+    fluxg.resize(geo.dx.size() * (pnorder+1));
 
 #pragma omp parallel for default(none) shared (quad, bc_left, bc_right, exception, psi_left, psi_right) \
-  shared (fluxg_old, g, qmost) shared(parfluxg)
+  shared (fluxg_old, g, qmost) shared(parfluxg) shared(std::cout)
   for (std::size_t j = 0; j < quad->get_npoints(); ++j)
   {
     const int myid{omp_get_thread_num()};
+    std::vector<double> & fluxg{parfluxg[myid]};
     // TODO negative flux fixup
     const auto qp{quad->get_points()[j]};
     if (qp.x > 0.0)
@@ -269,7 +271,8 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
         const double q{0.5*(qmost[i] + fluxg_old[i]*xsthis.scatter[0](g,g)*geo.dx[i])};
         const double psi_center{psi_edge / (1.0 + 0.5*xsthis.sigma_t[g]*geo.dx[i]/qp.x) 
           + q/(xsthis.sigma_t[g]*geo.dx[i] + 2.0*qp.x)};
-        parfluxg[myid][i] += qp.w * psi_center;
+        for (int n = 0; n < pnorder+1; ++n)
+          fluxg[i*(pnorder+1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
         if (i == geo.dx.size()-1ul)
           psi_right[g][j] = psi_edge;
@@ -300,7 +303,8 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
         const double q{0.5*(qmost[i] + fluxg_old[i]*xsthis.scatter[0](g,g)*geo.dx[i])};
         const double psi_center{psi_edge / (1.0 - 0.5*xsthis.sigma_t[g]*geo.dx[i]/qp.x)
           + q/(xsthis.sigma_t[g]*geo.dx[i] - 2.0*qp.x)};
-        parfluxg[myid][i] += qp.w * psi_center;
+        for (int n = 0; n < pnorder+1; ++n)
+          fluxg[i*(pnorder+1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
         // make sure to store the left boundary for the opposite directions
         if (i == 0)
@@ -314,7 +318,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
 
   for (int n = 0; n < nthread; ++n)
     for (std::size_t i = 0; i < geo.dx.size(); ++i)
-      fluxg[i] += parfluxg[n][i];
+      fluxg[i] += parfluxg[n][i*(pnorder+1) + 0];
 
   return fluxg;
 }

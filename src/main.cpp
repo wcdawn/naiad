@@ -84,15 +84,30 @@ int main(int argc, char* argv[])
   Result res;
   if (input.snorder == 0)
   {
+    if (input.pnorder != 0)
+      exception.note(std::string{"Ignoring PN order for diffusion calculation."}
+        + std::format(" Requested pnorder={:d}", input.pnorder));
     // diffusion
     const Diffusion_solver diffusion{geo, input.bc_left, input.bc_right, xslib, input.tolerance()};
     res = diffusion.solve();
   }
   else
   {
+
+    naiad::out << "=== ANISOTROPIC SUMMARY ===" << std::endl;
+    naiad::out << "Requested pnorder: " << input.pnorder << std::endl;
+    naiad::out << "Highest available scattering moment from cross sections: " << xslib.nmoment() - 1 << std::endl;
+    if (input.pnorder > xslib.nmoment()-1)
+      naiad::out << "Flux moments for PN > " << xslib.nmoment() - 1 << " will be computed, but will not affect the solution." << std::endl;
+    else if (input.pnorder < xslib.nmoment()-1)
+      naiad::out << "Scattering moments for PN > " << xslib.nmoment() - 1 << " are available, but will not be used." << std::endl;
+    else
+      naiad::out << "Flux moments will be calculated for all available scattering moments (and no more)." << std::endl;
+    naiad::out << std::endl;
+
     // transport
     const std::unique_ptr<Quadrature_gauss_legendre> quadrature{std::make_unique<Quadrature_gauss_legendre>(input.snorder)};
-    const Transport_solver transport{geo, input.spatial_method, input.bc_left, input.bc_right, xslib, input.tolerance(), quadrature.get()};
+    const Transport_solver transport{geo, input.spatial_method, input.bc_left, input.bc_right, xslib, input.tolerance(), quadrature.get(), input.pnorder};
     res = transport.solve();
   }
 
@@ -124,6 +139,8 @@ int main(int argc, char* argv[])
   const std::string fname_flux_csv{fname_stub + "_flux.csv"};
   naiad::out << "writing flux csv on " << fname_flux_csv << std::endl;
   writer.write_flux(fname_flux_csv);
+  const std::string fname_phi_csv{fname_stub + "_phi.csv"};
+  writer.write_phi(fname_phi_csv);
   naiad::out << std::endl;
 
   exception.summary(naiad::out);
