@@ -1,0 +1,56 @@
+\documentclass{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{newtxtext, newtxmath}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage[all]{nowidow}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+
+\usepackage{booktabs}
+\usepackage{catchfile}
+
+\usepackage{siunitx}
+\DeclareSIUnit{\pcm}{pcm}
+
+\newcommand{\keff}{\ensuremath{k_{\!\textit{eff}}}}
+
+\title{Solution of Analytic Criticality Benchmarks with Naiad}
+\author{William C. Dawn}
+
+\begin{document}
+
+\maketitle
+
+\CatchFileDef{\mytable}{../summary_onegroup.tex}{}%
+\begin{table}
+  \centering
+  \caption{One-Group Results.}
+  \label{tab:onegroup_results}
+  \begin{tabular}{rlS[table-format=1.6]S[table-format=1.6]S[table-format=-2.2]}
+    \toprule
+    {Number} & {Name} & {Ref. $\keff$} & {Naiad $\keff$} & {Diff. $\left[\unit{\pcm}\right]$} \\
+    \midrule
+    \mytable
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\CatchFileDef{\mytable}{../summary_multigroup.tex}{}%
+\begin{table}
+  \centering
+  \caption{Multi-Group Results.}
+  \label{tab:multigroup_results}
+  \begin{tabular}{rlS[table-format=1.6]S[table-format=1.6]S[table-format=-2.2]}
+    \toprule
+    {Number} & {Name} & {Ref. $\keff$} & {Naiad $\keff$} & {Diff. $\left[\unit{\pcm}\right]$} \\
+    \midrule
+    \mytable
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\end{document}
