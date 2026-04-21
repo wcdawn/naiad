@@ -166,6 +166,8 @@ Result Transport_solver::solve() const
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
         qmost[i] = fsource[g][i]/keff + upscatter[g][i] + downscatter[i];
 
+      naiad::out << "group " << g << std::endl;
+
       for (int inner = 0; inner < tol.max_iter_scatter; ++inner)
       {
         const auto fluxg_old{flux[g]};
