@@ -57,7 +57,7 @@ class Transport_solver
 
     std::unique_ptr<Transport_sweeper> sweeper;
 
-    std::vector<std::vector<double>> build_fsource(const std::vector<std::vector<double>> & flux) const;
+    std::vector<std::vector<double>> build_fsource(const std::vector<std::vector<double>> & flux, const double keff) const;
     std::vector<std::vector<double>> build_upscatter(const std::vector<std::vector<double>> & flux) const;
     std::vector<double> build_downscatter(const std::vector<std::vector<double>> & flux, const int g) const;
 

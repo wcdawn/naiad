@@ -23,7 +23,7 @@ Transport_solver::Transport_solver(
 }
 
 std::vector<std::vector<double>> Transport_solver::build_fsource(
-  const std::vector<std::vector<double>> & flux) const
+  const std::vector<std::vector<double>> & flux, const double keff) const
 {
   std::vector<std::vector<double>> fsource;
   fsource.resize(xslib.ngroup());
@@ -39,7 +39,7 @@ std::vector<std::vector<double>> Transport_solver::build_fsource(
         xsum += xsthis.nusf[g] * flux[g][i*(pnorder+1) + 0]; // always scalar flux
       xsum *= geo.dx[i];
       for (int g = 0; g < xslib.ngroup(); ++g)
-        fsource[g][i] = xsthis.chi[g] * xsum;
+        fsource[g][i] = xsthis.chi[g] / keff * xsum;
     }
   }
   return fsource;
@@ -52,7 +52,7 @@ std::vector<std::vector<double>> Transport_solver::build_upscatter(
   std::vector<std::vector<double>> upscatter;
   upscatter.resize(xslib.ngroup());
   for (auto & u : upscatter)
-    u.resize(geo.dx.size());
+    u.resize(geo.dx.size() * (pnorder + 1));
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
     const auto & xsthis{xslib(geo.mat_map[i])};
@@ -60,8 +60,9 @@ std::vector<std::vector<double>> Transport_solver::build_upscatter(
     {
       // only considering isotropic contribution (for now)
       for (int gprime = g+1; gprime < xslib.ngroup(); ++gprime)
-        upscatter[g][i] += xsthis.scatter[0](gprime,g) * flux[gprime][i * (pnorder+1) + 0];
-      upscatter[g][i] *= geo.dx[i];
+        upscatter[g][i * (pnorder + 1) + 0] 
+          += xsthis.scatter[0](gprime,g) * flux[gprime][i * (pnorder + 1) + 0];
+      upscatter[g][i * (pnorder + 1) + 0] *= geo.dx[i];
     }
   }
   return upscatter;
@@ -73,14 +74,15 @@ std::vector<double> Transport_solver::build_downscatter(
   const int g) const
 {
   std::vector<double> downscatter;
-  downscatter.resize(geo.dx.size());
+  downscatter.resize(geo.dx.size() * (pnorder + 1));
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
     const auto & xsthis {xslib(geo.mat_map[i])};
     // only considering isotropic contribution for now
     for (int gprime = 0; gprime < g; ++gprime)
-      downscatter[i] += xsthis.scatter[0](gprime,g) * flux[gprime][i * (pnorder+1) + 0];
-    downscatter[i] *= geo.dx[i];
+      downscatter[i * (pnorder + 1) + 0] 
+        += xsthis.scatter[0](gprime,g) * flux[gprime][i * (pnorder + 1) + 0];
+    downscatter[i * (pnorder + 1) + 0] *= geo.dx[i];
   }
   return downscatter;
 }
@@ -164,7 +166,7 @@ Result Transport_solver::solve() const
     const double k_old{keff};
     const double fsum_old{fsum};
 
-    const auto fsource{build_fsource(flux)};
+    const auto fsource{build_fsource(flux, keff)};
     const auto upscatter{build_upscatter(flux)};
 
     for (int g = 0; g < xslib.ngroup(); ++g)
@@ -172,25 +174,18 @@ Result Transport_solver::solve() const
       const auto downscatter{build_downscatter(flux, g)};
 
       std::vector<double> qmost;
-      qmost.resize(geo.dx.size());
+      qmost.resize(geo.dx.size() * (pnorder + 1));
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
-        qmost[i] = fsource[g][i]/keff + upscatter[g][i] + downscatter[i];
+        qmost[i * (pnorder + 1) + 0] = fsource[g][i] 
+          + upscatter[g][i * (pnorder + 1) + 0] 
+          + downscatter[i * (pnorder + 1) + 0];
 
       naiad::out << "group " << g << std::endl;
 
       for (int inner = 0; inner < tol.max_iter_scatter; ++inner)
       {
         const auto fluxg_old{flux[g]};
-
-        /*
-        const auto fluxtmp{sweeper->sweep(flux[g], qmost, g)};
-        // TODO this unpack should be unnecessary eventually
-        for (std::size_t i = 0; i < geo.dx.size(); ++i)
-          flux[g][i] = fluxtmp[i*(pnorder+1)];
-        */
-
         flux[g] = sweeper->sweep(flux[g], qmost, g);
-
         const double dphi{convergence_phi_scat(flux[g], fluxg_old)};
         naiad::out << "   ... scatter " << inner << " dphi=" << std::format("{:7.1e}", dphi) << std::endl;
         if (dphi < tol.scatter)
@@ -285,9 +280,10 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{0.5*(qmost[i] + fluxg_old[i*(pnorder+1)+0]*xsthis.scatter[0](g,g)*geo.dx[i])};
-        const double psi_center{psi_edge / (1.0 + 0.5*xsthis.sigma_t[g]*geo.dx[i]/qp.x) 
-          + q/(xsthis.sigma_t[g]*geo.dx[i] + 2.0*qp.x)};
+        const double q{0.5*(qmost[i * (pnorder + 1) + 0] 
+          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g,g) * geo.dx[i])};
+        const double psi_center{psi_edge / (1.0 + 0.5 * xsthis.sigma_t[g] * geo.dx[i] / qp.x) 
+          + q / (xsthis.sigma_t[g] * geo.dx[i] + 2.0 * qp.x)};
         for (int n = 0; n < pnorder+1; ++n)
           fluxg[i*(pnorder+1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
@@ -317,9 +313,10 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       for (long i = static_cast<long>(geo.dx.size())-1l; i >= 0; --i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{0.5*(qmost[i] + fluxg_old[i*(pnorder+1)+0]*xsthis.scatter[0](g,g)*geo.dx[i])};
-        const double psi_center{psi_edge / (1.0 - 0.5*xsthis.sigma_t[g]*geo.dx[i]/qp.x)
-          + q/(xsthis.sigma_t[g]*geo.dx[i] - 2.0*qp.x)};
+        const double q{0.5 * (qmost[i * (pnorder + 1) + 0] 
+          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g,g) * geo.dx[i])};
+        const double psi_center{psi_edge / (1.0 - 0.5 * xsthis.sigma_t[g] * geo.dx[i] / qp.x)
+          + q / (xsthis.sigma_t[g] * geo.dx[i] - 2.0 * qp.x)};
         for (int n = 0; n < pnorder+1; ++n)
           fluxg[i*(pnorder+1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
