@@ -1,32 +1,31 @@
 #include <iostream>
-#include <vector>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
+#include "analysis.hpp"
+#include "diffusion.hpp"
+#include "exception_handler.hpp"
+#include "geometry.hpp"
 #include "input.hpp"
 #include "output.hpp"
-#include "geometry.hpp"
-#include "xslibrary.hpp"
-#include "exception_handler.hpp"
-#include "diffusion.hpp"
-#include "result.hpp"
-#include "writer.hpp"
-#include "analysis.hpp"
 #include "quadrature1d.hpp"
 #include "quadrature_gauss_legendre.hpp"
+#include "result.hpp"
 #include "transport.hpp"
+#include "writer.hpp"
+#include "xslibrary.hpp"
 
 using namespace naiad;
 
 std::string get_stub(const std::string & fname)
 {
   const auto last{fname.find_last_of('.')};
-  return fname.substr(0,last); // does not include period
+  return fname.substr(0, last); // does not include period
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char * argv[])
 {
-
   // process arguments
   std::vector<std::string> args;
   args.reserve(argc);
@@ -86,28 +85,31 @@ int main(int argc, char* argv[])
   {
     if (input.pnorder != 0)
       exception.note(std::string{"Ignoring PN order for diffusion calculation."}
-        + std::format(" Requested pnorder={:d}", input.pnorder));
+                     + std::format(" Requested pnorder={:d}", input.pnorder));
     // diffusion
     const Diffusion_solver diffusion{geo, input.bc_left, input.bc_right, xslib, input.tolerance()};
     res = diffusion.solve();
   }
   else
   {
-
     naiad::out << "=== ANISOTROPIC SUMMARY ===" << std::endl;
     naiad::out << "Requested pnorder: " << input.pnorder << std::endl;
     naiad::out << "Highest available scattering moment from cross sections: " << xslib.nmoment() - 1 << std::endl;
-    if (input.pnorder > xslib.nmoment()-1)
-      naiad::out << "Flux moments for PN > " << xslib.nmoment() - 1 << " will be computed, but will not affect the solution." << std::endl;
-    else if (input.pnorder < xslib.nmoment()-1)
-      naiad::out << "Scattering moments for PN > " << xslib.nmoment() - 1 << " are available, but will not be used." << std::endl;
+    if (input.pnorder > xslib.nmoment() - 1)
+      naiad::out << "Flux moments for PN > " << xslib.nmoment() - 1
+                 << " will be computed, but will not affect the solution." << std::endl;
+    else if (input.pnorder < xslib.nmoment() - 1)
+      naiad::out << "Scattering moments for PN > " << xslib.nmoment() - 1 << " are available, but will not be used."
+                 << std::endl;
     else
       naiad::out << "Flux moments will be calculated for all available scattering moments (and no more)." << std::endl;
     naiad::out << std::endl;
 
     // transport
-    const std::unique_ptr<Quadrature_gauss_legendre> quadrature{std::make_unique<Quadrature_gauss_legendre>(input.snorder)};
-    const Transport_solver transport{geo, input.spatial_method, input.bc_left, input.bc_right, xslib, input.tolerance(), quadrature.get(), input.pnorder};
+    const std::unique_ptr<Quadrature_gauss_legendre> quadrature{
+        std::make_unique<Quadrature_gauss_legendre>(input.snorder)};
+    const Transport_solver transport{geo,   input.spatial_method, input.bc_left,    input.bc_right,
+                                     xslib, input.tolerance(),    quadrature.get(), input.pnorder};
     res = transport.solve();
   }
 

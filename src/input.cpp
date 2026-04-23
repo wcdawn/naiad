@@ -1,13 +1,12 @@
 #include "input.hpp"
 
-#include "exception_handler.hpp"
-
 #include <fstream>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
 
-#include <iostream>
+#include "exception_handler.hpp"
 
 namespace naiad
 {
@@ -32,10 +31,8 @@ std::string slurp(const std::string & filename)
   return slurp(ifs);
 }
 
-Input::Input(const std::string & filename_)
-  :filename{filename_}, echo_str{slurp(filename_)}
+Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slurp(filename_)}
 {
-
   std::ifstream ifs{filename};
 
   std::string fname_xslib;
@@ -45,11 +42,12 @@ Input::Input(const std::string & filename_)
 
   while (ifs.good())
   {
-
     const std::string card{get_card(ifs)};
     if (card[0] == '#')
     {
-      for (char x{'a'}; x != '\n'; ifs.get(x)) {}
+      for (char x{'a'}; x != '\n'; ifs.get(x))
+      {
+      }
       continue;
     }
 
@@ -82,7 +80,7 @@ Input::Input(const std::string & filename_)
     {
       ifs >> refine;
     }
-    
+
     else if (card == "snorder")
     {
       ifs >> snorder;
@@ -141,14 +139,12 @@ Input::Input(const std::string & filename_)
     {
       exception.warning(std::string{"UNKNOWN INPUT CARD: "} + card);
     }
-
   }
 
   // secondary processing to separate error messages
   geo = Geometry{dx, mat_map};
   xs = XSLibrary{fname_xslib};
   xs.finalize();
-
 }
 
 void Input::check() const
@@ -223,7 +219,8 @@ std::string enum2str(const Spatial_method spatial_method)
     case (Spatial_method::quadratic_characteristic):
       return "quadratic_characteristic";
     default:
-      exception.fatal(std::string{"Unable to determine spatial_method string: "} + std::format("{:d}", static_cast<int>(spatial_method)));
+      exception.fatal(std::string{"Unable to determine spatial_method string: "}
+                      + std::format("{:d}", static_cast<int>(spatial_method)));
       return "unknown";
   }
 }
@@ -251,7 +248,8 @@ std::string enum2str(const Boundary_condition bc)
     case (Boundary_condition::zero):
       return "zero";
     default:
-      exception.fatal(std::string{"Unable to identify boundary condition name: "} + std::format("{:d}", static_cast<int>(bc)));
+      exception.fatal(std::string{"Unable to identify boundary condition name: "}
+                      + std::format("{:d}", static_cast<int>(bc)));
       return "unknown";
   }
 }

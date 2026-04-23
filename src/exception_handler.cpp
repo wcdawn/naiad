@@ -25,7 +25,7 @@ void Exception_handler::fatal(const std::string & msg)
   std::abort();
 }
 
-void Exception_handler::print_msg(const std::tuple<Exception_level,std::string> & msg, std::ostream & os)
+void Exception_handler::print_msg(const std::tuple<Exception_level, std::string> & msg, std::ostream & os)
 {
   switch (std::get<0>(msg))
   {
@@ -49,7 +49,7 @@ void Exception_handler::summary(std::ostream & os) const
 {
   os << "=== EXCEPTION SUMMARY ===" << std::endl;
 
-  std::unordered_map<Exception_level,int> count;
+  std::unordered_map<Exception_level, int> count;
 
   count.insert({Exception_level::note, 0});
   count.insert({Exception_level::warning, 0});

@@ -1,4 +1,5 @@
 #include "transport.hpp"
+
 #include <omp.h>
 
 #include "exception_handler.hpp"
@@ -6,10 +7,10 @@
 namespace naiad
 {
 
-Transport_solver::Transport_solver(
-  const Geometry & geo_, const Spatial_method & spatial_method,
-  const Boundary_condition & bc_left_, const Boundary_condition & bc_right_,
-  const XSLibrary & xslib_, const Tolerance & tol_, const Quadrature1d * const quad_, const int pnorder_)
+Transport_solver::Transport_solver(const Geometry & geo_, const Spatial_method & spatial_method,
+                                   const Boundary_condition & bc_left_, const Boundary_condition & bc_right_,
+                                   const XSLibrary & xslib_, const Tolerance & tol_, const Quadrature1d * const quad_,
+                                   const int pnorder_)
   : geo{geo_}, bc_left{bc_left_}, bc_right{bc_right_}, xslib{xslib_}, tol{tol_}, quad{quad_}, pnorder{pnorder_}
 {
   switch (spatial_method)
@@ -22,8 +23,8 @@ Transport_solver::Transport_solver(
   }
 }
 
-std::vector<std::vector<double>> Transport_solver::build_fsource(
-  const std::vector<std::vector<double>> & flux, const double keff) const
+std::vector<std::vector<double>> Transport_solver::build_fsource(const std::vector<std::vector<double>> & flux,
+                                                                 const double keff) const
 {
   std::vector<std::vector<double>> fsource;
   fsource.resize(xslib.ngroup());
@@ -36,7 +37,7 @@ std::vector<std::vector<double>> Transport_solver::build_fsource(
     {
       double xsum{0.0};
       for (int g = 0; g < xslib.ngroup(); ++g)
-        xsum += xsthis.nusf[g] * flux[g][i*(pnorder+1) + 0]; // always scalar flux
+        xsum += xsthis.nusf[g] * flux[g][i * (pnorder + 1) + 0]; // always scalar flux
       xsum *= geo.dx[i];
       for (int g = 0; g < xslib.ngroup(); ++g)
         fsource[g][i] = xsthis.chi[g] / keff * xsum;
@@ -46,8 +47,7 @@ std::vector<std::vector<double>> Transport_solver::build_fsource(
 }
 
 // TODO this needs work for anisotropic scattering
-std::vector<std::vector<double>> Transport_solver::build_upscatter(
-  const std::vector<std::vector<double>> & flux) const
+std::vector<std::vector<double>> Transport_solver::build_upscatter(const std::vector<std::vector<double>> & flux) const
 {
   std::vector<std::vector<double>> upscatter;
   upscatter.resize(xslib.ngroup());
@@ -59,9 +59,8 @@ std::vector<std::vector<double>> Transport_solver::build_upscatter(
     for (int g = 0; g < xslib.ngroup(); ++g)
     {
       // only considering isotropic contribution (for now)
-      for (int gprime = g+1; gprime < xslib.ngroup(); ++gprime)
-        upscatter[g][i * (pnorder + 1) + 0] 
-          += xsthis.scatter[0](gprime,g) * flux[gprime][i * (pnorder + 1) + 0];
+      for (int gprime = g + 1; gprime < xslib.ngroup(); ++gprime)
+        upscatter[g][i * (pnorder + 1) + 0] += xsthis.scatter[0](gprime, g) * flux[gprime][i * (pnorder + 1) + 0];
       upscatter[g][i * (pnorder + 1) + 0] *= geo.dx[i];
     }
   }
@@ -69,26 +68,23 @@ std::vector<std::vector<double>> Transport_solver::build_upscatter(
 }
 
 // TODO this needs work for anisotropic scattering
-std::vector<double> Transport_solver::build_downscatter(
-  const std::vector<std::vector<double>> & flux,
-  const int g) const
+std::vector<double> Transport_solver::build_downscatter(const std::vector<std::vector<double>> & flux,
+                                                        const int g) const
 {
   std::vector<double> downscatter;
   downscatter.resize(geo.dx.size() * (pnorder + 1));
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto & xsthis {xslib(geo.mat_map[i])};
+    const auto & xsthis{xslib(geo.mat_map[i])};
     // only considering isotropic contribution for now
     for (int gprime = 0; gprime < g; ++gprime)
-      downscatter[i * (pnorder + 1) + 0] 
-        += xsthis.scatter[0](gprime,g) * flux[gprime][i * (pnorder + 1) + 0];
+      downscatter[i * (pnorder + 1) + 0] += xsthis.scatter[0](gprime, g) * flux[gprime][i * (pnorder + 1) + 0];
     downscatter[i * (pnorder + 1) + 0] *= geo.dx[i];
   }
   return downscatter;
 }
 
-double Transport_solver::fission_summation(
-  const std::vector<std::vector<double>> & flux) const
+double Transport_solver::fission_summation(const std::vector<std::vector<double>> & flux) const
 {
   double fsum{0.0};
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
@@ -97,7 +93,7 @@ double Transport_solver::fission_summation(
     if (xsthis.isfis)
     {
       for (int g = 0; g < xslib.ngroup(); ++g)
-        fsum += xsthis.nusf[g] * flux[g][i * (pnorder+1) + 0] * geo.dx[i];
+        fsum += xsthis.nusf[g] * flux[g][i * (pnorder + 1) + 0] * geo.dx[i];
     }
   }
   return fsum;
@@ -105,16 +101,15 @@ double Transport_solver::fission_summation(
 
 // I'm only going to look for relative change in the scalar flux.
 // The flux moments will be allowed to "float."
-double Transport_solver::convergence_phi_scat(
-  const std::vector<double> & fluxg,
-  const std::vector<double> & fluxg_old) const
+double Transport_solver::convergence_phi_scat(const std::vector<double> & fluxg,
+                                              const std::vector<double> & fluxg_old) const
 {
   double xdif{0.0};
   double xmax{0.0};
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const double fg{fluxg[i * (pnorder+1) + 0]};
-    xdif = std::max(xdif, std::abs(fg - fluxg_old[i*(pnorder+1)+0]));
+    const double fg{fluxg[i * (pnorder + 1) + 0]};
+    xdif = std::max(xdif, std::abs(fg - fluxg_old[i * (pnorder + 1) + 0]));
     xmax = std::max(xmax, fg);
   }
   return xdif / xmax;
@@ -123,9 +118,8 @@ double Transport_solver::convergence_phi_scat(
 // I'm only going to look for relative change in the scalar flux.
 // The flux moments will be allowed to "float."
 // In the future, maybe only look at convergence of fission reaction rate.
-double Transport_solver::convergence_phi(
-  const std::vector<std::vector<double>> & flux,
-  const std::vector<std::vector<double>> & flux_old) const
+double Transport_solver::convergence_phi(const std::vector<std::vector<double>> & flux,
+                                         const std::vector<std::vector<double>> & flux_old) const
 {
   double xdif{0.0};
   double xmax{0.0};
@@ -133,8 +127,8 @@ double Transport_solver::convergence_phi(
   {
     for (std::size_t i = 0; i < geo.dx.size(); ++i)
     {
-      const double fg{flux[g][i * (pnorder+1) + 0]};
-      xdif = std::max(xdif, std::abs(fg - flux_old[g][i*(pnorder+1)+0]));
+      const double fg{flux[g][i * (pnorder + 1) + 0]};
+      xdif = std::max(xdif, std::abs(fg - flux_old[g][i * (pnorder + 1) + 0]));
       xmax = std::max(xmax, fg);
     }
   }
@@ -143,7 +137,6 @@ double Transport_solver::convergence_phi(
 
 Result Transport_solver::solve() const
 {
-
   std::vector<std::vector<double>> flux;
   flux.resize(xslib.ngroup());
   for (auto & f : flux)
@@ -152,7 +145,7 @@ Result Transport_solver::solve() const
     // initialize scalar flux (all groups) to unity
     // all higher moments initialized to zero
     for (std::size_t i = 0; i < geo.dx.size(); ++i)
-      f[i*(pnorder+1) + 0] = 1.0;
+      f[i * (pnorder + 1) + 0] = 1.0;
   }
 
   double keff{1.0};
@@ -180,9 +173,8 @@ Result Transport_solver::solve() const
       qmost.resize(geo.dx.size() * (pnorder + 1));
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
         for (int ell = 0; ell < pnorder + 1; ++ell)
-          qmost[i * (pnorder + 1) + ell] = (ell == 0 ? fsource[g][i] : 0.0)
-            + upscatter[g][i * (pnorder + 1) + ell] 
-            + downscatter[i * (pnorder + 1) + ell];
+          qmost[i * (pnorder + 1) + ell] = (ell == 0 ? fsource[g][i] : 0.0) + upscatter[g][i * (pnorder + 1) + ell]
+                                           + downscatter[i * (pnorder + 1) + ell];
 
       naiad::out << "group " << g << std::endl;
 
@@ -204,10 +196,8 @@ Result Transport_solver::solve() const
     const double delta_k{std::abs(keff - k_old)};
     const double delta_phi{convergence_phi(flux, flux_old)};
 
-    naiad::out << "it=" << std::format("{:4d}", iter)
-               << " dk=" << std::format("{:7.1e}", delta_k)
-               << " dphi=" << std::format("{:7.1e}", delta_phi)
-               << " keff=" << std::format("{:8.6f}", keff)
+    naiad::out << "it=" << std::format("{:4d}", iter) << " dk=" << std::format("{:7.1e}", delta_k)
+               << " dphi=" << std::format("{:7.1e}", delta_phi) << " keff=" << std::format("{:8.6f}", keff)
                << std::endl;
 
     if ((delta_k < tol.k) && (delta_phi < tol.phi))
@@ -216,7 +206,7 @@ Result Transport_solver::solve() const
       break;
     }
 
-    if (iter == (tol.max_iter_phi-1))
+    if (iter == (tol.max_iter_phi - 1))
       exception.warning("failed to converge");
   }
 
@@ -225,8 +215,9 @@ Result Transport_solver::solve() const
   return {flux, keff, pnorder};
 }
 
-Transport_sweeper::Transport_sweeper(const Geometry & geo_, const Boundary_condition & bc_left_, const Boundary_condition & bc_right_,
-    const XSLibrary & xslib_, const Quadrature1d * const quad_, const int pnorder_)
+Transport_sweeper::Transport_sweeper(const Geometry & geo_, const Boundary_condition & bc_left_,
+                                     const Boundary_condition & bc_right_, const XSLibrary & xslib_,
+                                     const Quadrature1d * const quad_, const int pnorder_)
   : geo{geo_}, bc_left{bc_left_}, bc_right{bc_right_}, xslib{xslib_}, quad{quad_}, pnorder{pnorder_}
 {
   psi_left.resize(xslib.ngroup());
@@ -237,7 +228,8 @@ Transport_sweeper::Transport_sweeper(const Geometry & geo_, const Boundary_condi
     psi.resize(quad->get_npoints());
 }
 
-std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> & fluxg_in, const std::vector<double> & qmost, const int g)
+std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> & fluxg_in,
+                                                      const std::vector<double> & qmost, const int g)
 {
   const std::vector<double> fluxg_old{fluxg_in};
 
@@ -252,10 +244,10 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
   std::vector<std::vector<double>> parfluxg; // [nthread][nx]
   parfluxg.resize(nthread);
   for (auto & fluxg : parfluxg)
-    fluxg.resize(geo.dx.size() * (pnorder+1));
+    fluxg.resize(geo.dx.size() * (pnorder + 1));
 
-#pragma omp parallel for default(none) shared (quad, bc_left, bc_right, exception, psi_left, psi_right) \
-  shared (fluxg_old, g, qmost) shared(parfluxg) shared(std::cout)
+#pragma omp parallel for default(none) shared(quad, bc_left, bc_right, exception, psi_left, psi_right) \
+    shared(fluxg_old, g, qmost) shared(parfluxg) shared(std::cout)
   for (std::size_t j = 0; j < quad->get_npoints(); ++j)
   {
     const int myid{omp_get_thread_num()};
@@ -274,7 +266,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
         }
         case (Boundary_condition::mirror):
         {
-          const std::size_t jmirror{quad->get_npoints()-1ul-j};
+          const std::size_t jmirror{quad->get_npoints() - 1ul - j};
           psi_edge = psi_left[g][jmirror];
           break;
         }
@@ -284,14 +276,15 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{0.5*(qmost[i * (pnorder + 1) + 0] 
-          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g,g) * geo.dx[i])};
-        const double psi_center{psi_edge / (1.0 + 0.5 * xsthis.sigma_t[g] * geo.dx[i] / qp.x) 
-          + q / (xsthis.sigma_t[g] * geo.dx[i] + 2.0 * qp.x)};
-        for (int n = 0; n < pnorder+1; ++n)
-          fluxg[i*(pnorder+1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
+        const double q{
+            0.5
+            * (qmost[i * (pnorder + 1) + 0] + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
+        const double psi_center{psi_edge / (1.0 + 0.5 * xsthis.sigma_t[g] * geo.dx[i] / qp.x)
+                                + q / (xsthis.sigma_t[g] * geo.dx[i] + 2.0 * qp.x)};
+        for (int n = 0; n < pnorder + 1; ++n)
+          fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
-        if (i == geo.dx.size()-1ul)
+        if (i == geo.dx.size() - 1ul)
           psi_right[g][j] = psi_edge;
       }
     }
@@ -307,22 +300,23 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
         }
         case (Boundary_condition::mirror):
         {
-          const std::size_t jmirror{quad->get_npoints()-1ul-j};
+          const std::size_t jmirror{quad->get_npoints() - 1ul - j};
           psi_edge = psi_right[g][jmirror];
           break;
         }
         default:
           exception.fatal(std::string{"Unknown bc_right= "} + enum2str(bc_right));
       }
-      for (long i = static_cast<long>(geo.dx.size())-1l; i >= 0; --i)
+      for (long i = static_cast<long>(geo.dx.size()) - 1l; i >= 0; --i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{0.5 * (qmost[i * (pnorder + 1) + 0] 
-          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g,g) * geo.dx[i])};
+        const double q{
+            0.5
+            * (qmost[i * (pnorder + 1) + 0] + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
         const double psi_center{psi_edge / (1.0 - 0.5 * xsthis.sigma_t[g] * geo.dx[i] / qp.x)
-          + q / (xsthis.sigma_t[g] * geo.dx[i] - 2.0 * qp.x)};
-        for (int n = 0; n < pnorder+1; ++n)
-          fluxg[i*(pnorder+1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
+                                + q / (xsthis.sigma_t[g] * geo.dx[i] - 2.0 * qp.x)};
+        for (int n = 0; n < pnorder + 1; ++n)
+          fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
         // make sure to store the left boundary for the opposite directions
         if (i == 0)
@@ -332,12 +326,12 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
   }
 
   std::vector<double> fluxg;
-  fluxg.resize(geo.dx.size()*(pnorder+1));
+  fluxg.resize(geo.dx.size() * (pnorder + 1));
 
   for (int n = 0; n < nthread; ++n)
     for (std::size_t i = 0; i < geo.dx.size(); ++i)
-      for (int ell = 0; ell < pnorder+1; ++ell)
-      fluxg[i*(pnorder+1) + ell] += parfluxg[n][i*(pnorder+1) + ell];
+      for (int ell = 0; ell < pnorder + 1; ++ell)
+        fluxg[i * (pnorder + 1) + ell] += parfluxg[n][i * (pnorder + 1) + ell];
 
   return fluxg;
 }

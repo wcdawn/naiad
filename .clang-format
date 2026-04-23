@@ -1,0 +1,49 @@
+BasedOnStyle: Google
+IndentWidth: 2
+ColumnLimit: 120
+UseTab: Never
+
+DerivePointerAlignment: false
+PointerAlignment: Middle
+ReferenceAlignment: Middle
+QualifierAlignment: Custom
+QualifierOrder: [inline, static, constexpr, const, friend, volatile, type]
+
+SortIncludes: true
+
+ReflowComments: true
+AlignTrailingComments: true
+SpacesBeforeTrailingComments: 1
+
+Language: Cpp
+
+AlignAfterOpenBracket: Align
+
+IndentCaseLabels: true
+BreakBeforeBraces: Allman
+BreakBeforeBinaryOperators: All
+
+AllowShortBlocksOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+AlwaysBreakTemplateDeclarations: true
+
+EmptyLineBeforeAccessModifier: Always
+EmptyLineAfterAccessModifier: Always
+
+SpaceAfterLogicalNot: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpacesInAngles: Never
+
+ConstructorInitializerIndentWidth: 2
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+IndentAccessModifiers: true

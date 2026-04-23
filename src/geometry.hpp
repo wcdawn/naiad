@@ -1,8 +1,8 @@
 #ifndef NAIAD_GEOMETRY_HPP
 #define NAIAD_GEOMETRY_HPP
 
-#include <vector>
 #include <ostream>
+#include <vector>
 
 namespace naiad
 {
@@ -10,11 +10,10 @@ namespace naiad
 class Geometry
 {
   public:
+
     Geometry(const std::vector<double> & dx_, const std::vector<int> & mat_map_);
 
-    Geometry()
-      : dx{}, mat_map{}
-    {}
+    Geometry() : dx{}, mat_map{} {}
 
     void refine();
 

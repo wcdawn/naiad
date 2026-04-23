@@ -1,26 +1,26 @@
 #include "xslibrary.hpp"
-#include "exception_handler.hpp"
 
 #include <fstream>
-
 #include <iostream>
+
+#include "exception_handler.hpp"
 
 namespace naiad
 {
 
-XSLibrary::XSLibrary(const std::string & filename_)
-  : fname{filename_}
+XSLibrary::XSLibrary(const std::string & filename_) : fname{filename_}
 {
   std::ifstream ifs{fname};
 
   while (ifs.good())
   {
-
     std::string card;
     ifs >> card;
     if (card[0] == '#')
     {
-      for (char x{'a'}; x != '\n'; ifs.get(x)) {}
+      for (char x{'a'}; x != '\n'; ifs.get(x))
+      {
+      }
       continue;
     }
 
@@ -48,7 +48,7 @@ XSLibrary::XSLibrary(const std::string & filename_)
       ifs >> name;
       mat.emplace_back(name);
       mat.back().ngroup(ngroup());
-      matid.insert({name, static_cast<int>(mat.size()-std::size_t{1})});
+      matid.insert({name, static_cast<int>(mat.size() - std::size_t{1})});
     }
     else if (card == "sigma_t")
     {
@@ -77,7 +77,7 @@ XSLibrary::XSLibrary(const std::string & filename_)
       ifs >> mom;
       for (int g = 0; g < ngroup(); ++g)
         for (int gprime = 0; gprime < ngroup(); ++gprime)
-          ifs >> mat.back().scatter[mom](gprime,g);
+          ifs >> mat.back().scatter[mom](gprime, g);
     }
     else if (card == "nusf")
     {

@@ -1,10 +1,10 @@
 #ifndef NAIAD_XSLIBRARY_HPP
 #define NAIAD_XSLIBRARY_HPP
 
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include <ostream>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "dense_matrix.hpp"
 
@@ -14,7 +14,8 @@ namespace naiad
 class XSMaterial
 {
   public:
-    XSMaterial(){}
+
+    XSMaterial() {}
     XSMaterial(const std::string & n) : nam{n} {}
 
     int ngroup() const { return ng; }
@@ -39,6 +40,7 @@ class XSMaterial
     void finalize();
 
   private:
+
     int ng;
     std::string nam;
 };
@@ -46,7 +48,8 @@ class XSMaterial
 class XSLibrary
 {
   public:
-    XSLibrary(){}
+
+    XSLibrary() {}
     XSLibrary(const std::string & filename_);
 
     const XSMaterial & operator()(int i) const { return mat[i]; }
@@ -64,6 +67,7 @@ class XSLibrary
     void finalize();
 
   private:
+
     std::string fname;
 
     std::vector<XSMaterial> mat;
@@ -71,7 +75,6 @@ class XSLibrary
 
     int ng;
     int nmom;
-
 };
 
 } // namespace naiad

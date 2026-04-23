@@ -1,8 +1,8 @@
 #ifndef NAIAD_EXCEPTION_HANDLER_HPP
 #define NAIAD_EXCEPTION_HANDLER_HPP
 
-#include <string>
 #include <iostream>
+#include <string>
 #include <tuple>
 
 #include "output.hpp"
@@ -20,7 +20,8 @@ enum class Exception_level
 class Exception_handler
 {
   public:
-    Exception_handler(){}
+
+    Exception_handler() {}
 
     void note(const std::string & msg);
     void warning(const std::string & msg);
@@ -30,10 +31,9 @@ class Exception_handler
 
   private:
 
-    static void print_msg(const std::tuple<Exception_level,std::string> & msg, std::ostream & os);
+    static void print_msg(const std::tuple<Exception_level, std::string> & msg, std::ostream & os);
 
-    std::vector<std::tuple<Exception_level,std::string>> arr;
-
+    std::vector<std::tuple<Exception_level, std::string>> arr;
 };
 
 extern Exception_handler exception;

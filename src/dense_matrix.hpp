@@ -30,15 +30,9 @@ class Dense_matrix
     auto N() const { return n; }
 
     // necessary becasue of std::vector<bool> case
-    std::vector<T>::reference operator()(size_type m_, size_type n_)
-    {
-      return dat[m_ + n_ * m];
-    }
+    std::vector<T>::reference operator()(size_type m_, size_type n_) { return dat[m_ + n_ * m]; }
 
-    const T & operator()(size_type m_, size_type n_) const
-    {
-      return dat[m_ + n_ * m];
-    }
+    const T & operator()(size_type m_, size_type n_) const { return dat[m_ + n_ * m]; }
 
     Dense_matrix<T> operator=(T x)
     {

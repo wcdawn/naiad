@@ -1,13 +1,13 @@
 #ifndef NAIAD_INPUT_HPP
 #define NAIAD_INPUT_HPP
 
-#include <string>
 #include <fstream>
 #include <memory>
+#include <string>
 
+#include "analysis.hpp"
 #include "geometry.hpp"
 #include "xslibrary.hpp"
-#include "analysis.hpp"
 
 namespace naiad
 {
@@ -19,6 +19,7 @@ std::string slurp(const std::string & filename);
 class Tolerance
 {
   public:
+
     double phi{1e-7};
     double k{1e-6};
     double scatter{1e-7};
@@ -52,6 +53,7 @@ std::string enum2str(const Boundary_condition bc);
 class Input
 {
   public:
+
     Input(const std::string & filename_);
 
     void check() const;
@@ -75,12 +77,12 @@ class Input
     Analysis_reference analysis_reference{Analysis_reference::none};
 
   private:
+
     const std::string filename;
     const std::string echo_str;
     Geometry geo;
     XSLibrary xs;
     Tolerance tol;
-
 };
 
 } // namespace naiad

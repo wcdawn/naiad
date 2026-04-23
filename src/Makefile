@@ -5,6 +5,8 @@ CXX = /opt/homebrew/opt/llvm@22/bin/clang++
 CXXFLAGS = -Wall -Wextra -O3 -std=c++23 -fopenmp
 # CXXFLAGS = -Wall -Wextra -O0 -g -std=c++23
 
+CLANG_FORMAT = /opt/homebrew/opt/llvm@22/bin/clang-format
+
 OBJ = main.o \
 	  dense_matrix.o \
 	  exception_handler.o \
@@ -21,7 +23,11 @@ OBJ = main.o \
 	  quadrature_gauss_legendre.o \
 	  transport.o
 
+.PHONY : default all clean format
+
 EXEC = naiad.x
+
+default : all
 
 all : $(EXEC)
 
@@ -34,6 +40,9 @@ $(EXEC) : $(OBJ)
 clean:
 	$(RM) $(OBJ)
 	$(RM) $(EXEC)
+
+format:
+	${CLANG_FORMAT} -i ./*.[ch]pp
 
 main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp exception_handler.hpp diffusion.hpp result.hpp writer.hpp analysis.hpp transport.hpp
 input.o : input.hpp geometry.hpp xslibrary.hpp exception_handler.hpp analysis.hpp

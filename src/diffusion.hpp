@@ -1,12 +1,12 @@
 #ifndef NAIAD_DIFFUSION_HPP
 #define NAIAD_DIFFUSION_HPP
 
-#include "input.hpp"
-#include "geometry.hpp"
-#include "xslibrary.hpp"
-#include "result.hpp"
-
 #include <vector>
+
+#include "geometry.hpp"
+#include "input.hpp"
+#include "result.hpp"
+#include "xslibrary.hpp"
 
 namespace naiad
 {
@@ -14,6 +14,7 @@ namespace naiad
 class Tridiagonal_matrix
 {
   public:
+
     std::vector<double> sub;
     std::vector<double> dia;
     std::vector<double> sup;
@@ -22,13 +23,14 @@ class Tridiagonal_matrix
 class Diffusion_solver
 {
   public:
-    Diffusion_solver(
-        const Geometry & geo_, const Boundary_condition & bc_left_, const Boundary_condition & bc_right_,
-        const XSLibrary & xslib_, const Tolerance & tol_);
+
+    Diffusion_solver(const Geometry & geo_, const Boundary_condition & bc_left_, const Boundary_condition & bc_right_,
+                     const XSLibrary & xslib_, const Tolerance & tol_);
 
     Result solve() const;
 
   private:
+
     const Geometry & geo;
     const Boundary_condition bc_right;
     const XSLibrary & xslib;
@@ -43,8 +45,8 @@ class Diffusion_solver
 
     double fission_summation(const std::vector<std::vector<double>> & flux) const;
 
-    static double convergence_phi(const std::vector<std::vector<double>> & flux, const std::vector<std::vector<double>> & flux_old);
-
+    static double convergence_phi(const std::vector<std::vector<double>> & flux,
+                                  const std::vector<std::vector<double>> & flux_old);
 };
 
 } // namespace naiad
