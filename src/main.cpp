@@ -138,11 +138,15 @@ int main(int argc, char * argv[])
     analysis->summary(naiad::out);
 
   const Writer writer{geo, res};
+
   const std::string fname_flux_csv{fname_stub + "_flux.csv"};
   naiad::out << "writing flux csv on " << fname_flux_csv << std::endl;
   writer.write_flux(fname_flux_csv);
+
   const std::string fname_phi_csv{fname_stub + "_phi.csv"};
+  naiad::out << "writing phi csv on " << fname_phi_csv << std::endl;
   writer.write_phi(fname_phi_csv);
+
   naiad::out << std::endl;
 
   exception.summary(naiad::out);
