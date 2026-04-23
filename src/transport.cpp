@@ -173,12 +173,16 @@ Result Transport_solver::solve() const
     {
       const auto downscatter{build_downscatter(flux, g)};
 
+      // TODO this should be down-sized to std::min(xslib.nmoment()+1, pnorder+1)
+      // That way, we would only store the non-zero sources.
+      // Right now, we would be storing lots of zero sources for pnorder > nmoment.
       std::vector<double> qmost;
       qmost.resize(geo.dx.size() * (pnorder + 1));
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
-        qmost[i * (pnorder + 1) + 0] = fsource[g][i] 
-          + upscatter[g][i * (pnorder + 1) + 0] 
-          + downscatter[i * (pnorder + 1) + 0];
+        for (int ell = 0; ell < pnorder + 1; ++ell)
+          qmost[i * (pnorder + 1) + ell] = (ell == 0 ? fsource[g][i] : 0.0)
+            + upscatter[g][i * (pnorder + 1) + ell] 
+            + downscatter[i * (pnorder + 1) + ell];
 
       naiad::out << "group " << g << std::endl;
 
