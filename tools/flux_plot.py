@@ -22,7 +22,7 @@ if __name__ == "__main__":
         plt.legend()
     plt.xlabel("x [cm]")
     plt.ylabel("Flux")
-    plt.title("NAIAD Flux")
+    plt.title("Naiad Flux")
     plt.tight_layout()
     plt.savefig(fname.replace("csv", extension), dpi=resolution)
 

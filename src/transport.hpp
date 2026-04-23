@@ -63,8 +63,8 @@ class Transport_solver
 
     double fission_summation(const std::vector<std::vector<double>> & flux) const;
 
-    static double convergence_phi_scat(const std::vector<double> & flux, const std::vector<double> & flux_old);
-    static double convergence_phi(const std::vector<std::vector<double>> & flux, const std::vector<std::vector<double>> & flux_old);
+    double convergence_phi_scat(const std::vector<double> & flux, const std::vector<double> & flux_old) const;
+    double convergence_phi(const std::vector<std::vector<double>> & flux, const std::vector<std::vector<double>> & flux_old) const;
 };
 
 } // namespace naiad

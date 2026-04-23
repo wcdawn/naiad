@@ -36,7 +36,7 @@ std::vector<std::vector<double>> Transport_solver::build_fsource(
     {
       double xsum{0.0};
       for (int g = 0; g < xslib.ngroup(); ++g)
-        xsum += xsthis.nusf[g] * flux[g][i];
+        xsum += xsthis.nusf[g] * flux[g][i*(pnorder+1) + 0]; // always scalar flux
       xsum *= geo.dx[i];
       for (int g = 0; g < xslib.ngroup(); ++g)
         fsource[g][i] = xsthis.chi[g] * xsum;
@@ -45,7 +45,7 @@ std::vector<std::vector<double>> Transport_solver::build_fsource(
   return fsource;
 }
 
-// TODO this does not support anisotropic scattering
+// TODO this needs work for anisotropic scattering
 std::vector<std::vector<double>> Transport_solver::build_upscatter(
   const std::vector<std::vector<double>> & flux) const
 {
@@ -58,15 +58,16 @@ std::vector<std::vector<double>> Transport_solver::build_upscatter(
     const auto & xsthis{xslib(geo.mat_map[i])};
     for (int g = 0; g < xslib.ngroup(); ++g)
     {
+      // only considering isotropic contribution (for now)
       for (int gprime = g+1; gprime < xslib.ngroup(); ++gprime)
-        upscatter[g][i] += xsthis.scatter[0](gprime,g) * flux[gprime][i];
+        upscatter[g][i] += xsthis.scatter[0](gprime,g) * flux[gprime][i * (pnorder+1) + 0];
       upscatter[g][i] *= geo.dx[i];
     }
   }
   return upscatter;
 }
 
-// TODO this does not support anisotropic scattering
+// TODO this needs work for anisotropic scattering
 std::vector<double> Transport_solver::build_downscatter(
   const std::vector<std::vector<double>> & flux,
   const int g) const
@@ -76,8 +77,9 @@ std::vector<double> Transport_solver::build_downscatter(
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
     const auto & xsthis {xslib(geo.mat_map[i])};
+    // only considering isotropic contribution for now
     for (int gprime = 0; gprime < g; ++gprime)
-      downscatter[i] += xsthis.scatter[0](gprime,g) * flux[gprime][i];
+      downscatter[i] += xsthis.scatter[0](gprime,g) * flux[gprime][i * (pnorder+1) + 0];
     downscatter[i] *= geo.dx[i];
   }
   return downscatter;
@@ -93,38 +95,45 @@ double Transport_solver::fission_summation(
     if (xsthis.isfis)
     {
       for (int g = 0; g < xslib.ngroup(); ++g)
-        fsum += xsthis.nusf[g] * flux[g][i] * geo.dx[i];
+        fsum += xsthis.nusf[g] * flux[g][i * (pnorder+1) + 0] * geo.dx[i];
     }
   }
   return fsum;
 }
 
+// I'm only going to look for relative change in the scalar flux.
+// The flux moments will be allowed to "float."
 double Transport_solver::convergence_phi_scat(
   const std::vector<double> & fluxg,
-  const std::vector<double> & fluxg_old)
+  const std::vector<double> & fluxg_old) const
 {
   double xdif{0.0};
   double xmax{0.0};
-  for (std::size_t i = 0; i < fluxg.size(); ++i)
+  for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    xdif = std::max(xdif, std::abs(fluxg[i] - fluxg_old[i]));
-    xmax = std::max(xmax, fluxg[i]);
+    const double fg{fluxg[i * (pnorder+1) + 0]};
+    xdif = std::max(xdif, std::abs(fg - fluxg_old[i*(pnorder+1)+0]));
+    xmax = std::max(xmax, fg);
   }
   return xdif / xmax;
 }
 
+// I'm only going to look for relative change in the scalar flux.
+// The flux moments will be allowed to "float."
+// In the future, maybe only look at convergence of fission reaction rate.
 double Transport_solver::convergence_phi(
   const std::vector<std::vector<double>> & flux,
-  const std::vector<std::vector<double>> & flux_old)
+  const std::vector<std::vector<double>> & flux_old) const
 {
   double xdif{0.0};
   double xmax{0.0};
   for (std::size_t g = 0; g < flux.size(); ++g)
   {
-    for (std::size_t i = 0; i < flux[g].size(); ++i)
+    for (std::size_t i = 0; i < geo.dx.size(); ++i)
     {
-      xdif = std::max(xdif, std::abs(flux[g][i] - flux_old[g][i]));
-      xmax = std::max(xmax, flux[g][i]);
+      const double fg{flux[g][i * (pnorder+1) + 0]};
+      xdif = std::max(xdif, std::abs(fg - flux_old[g][i*(pnorder+1)+0]));
+      xmax = std::max(xmax, fg);
     }
   }
   return xdif / xmax;
@@ -133,15 +142,15 @@ double Transport_solver::convergence_phi(
 Result Transport_solver::solve() const
 {
 
-  // TODO this will have to grow another loop for moments
-  // with anisotropic scattering
   std::vector<std::vector<double>> flux;
   flux.resize(xslib.ngroup());
   for (auto & f : flux)
   {
-    f.resize(geo.dx.size());
-    for (auto & x : f)
-      x = 1.0;
+    f.resize(geo.dx.size() * (pnorder + 1));
+    // initialize scalar flux (all groups) to unity
+    // all higher moments initialized to zero
+    for (std::size_t i = 0; i < geo.dx.size(); ++i)
+      f[i*(pnorder+1) + 0] = 1.0;
   }
 
   double keff{1.0};
@@ -172,7 +181,16 @@ Result Transport_solver::solve() const
       for (int inner = 0; inner < tol.max_iter_scatter; ++inner)
       {
         const auto fluxg_old{flux[g]};
+
+        /*
+        const auto fluxtmp{sweeper->sweep(flux[g], qmost, g)};
+        // TODO this unpack should be unnecessary eventually
+        for (std::size_t i = 0; i < geo.dx.size(); ++i)
+          flux[g][i] = fluxtmp[i*(pnorder+1)];
+        */
+
         flux[g] = sweeper->sweep(flux[g], qmost, g);
+
         const double dphi{convergence_phi_scat(flux[g], fluxg_old)};
         naiad::out << "   ... scatter " << inner << " dphi=" << std::format("{:7.1e}", dphi) << std::endl;
         if (dphi < tol.scatter)
@@ -232,7 +250,6 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
 
   // NOTE: I have stored a copy for each thread.
   // This could be performed with locking instead.
-  // TODO need to do better with indexing...
   std::vector<std::vector<double>> parfluxg; // [nthread][nx]
   parfluxg.resize(nthread);
   for (auto & fluxg : parfluxg)
@@ -268,7 +285,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{0.5*(qmost[i] + fluxg_old[i]*xsthis.scatter[0](g,g)*geo.dx[i])};
+        const double q{0.5*(qmost[i] + fluxg_old[i*(pnorder+1)+0]*xsthis.scatter[0](g,g)*geo.dx[i])};
         const double psi_center{psi_edge / (1.0 + 0.5*xsthis.sigma_t[g]*geo.dx[i]/qp.x) 
           + q/(xsthis.sigma_t[g]*geo.dx[i] + 2.0*qp.x)};
         for (int n = 0; n < pnorder+1; ++n)
@@ -300,7 +317,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       for (long i = static_cast<long>(geo.dx.size())-1l; i >= 0; --i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{0.5*(qmost[i] + fluxg_old[i]*xsthis.scatter[0](g,g)*geo.dx[i])};
+        const double q{0.5*(qmost[i] + fluxg_old[i*(pnorder+1)+0]*xsthis.scatter[0](g,g)*geo.dx[i])};
         const double psi_center{psi_edge / (1.0 - 0.5*xsthis.sigma_t[g]*geo.dx[i]/qp.x)
           + q/(xsthis.sigma_t[g]*geo.dx[i] - 2.0*qp.x)};
         for (int n = 0; n < pnorder+1; ++n)
@@ -314,11 +331,12 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
   }
 
   std::vector<double> fluxg;
-  fluxg.resize(geo.dx.size());
+  fluxg.resize(geo.dx.size()*(pnorder+1));
 
   for (int n = 0; n < nthread; ++n)
     for (std::size_t i = 0; i < geo.dx.size(); ++i)
-      fluxg[i] += parfluxg[n][i*(pnorder+1) + 0];
+      for (int ell = 0; ell < pnorder+1; ++ell)
+      fluxg[i*(pnorder+1) + ell] += parfluxg[n][i*(pnorder+1) + ell];
 
   return fluxg;
 }
