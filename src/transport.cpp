@@ -162,6 +162,9 @@ Result Transport_solver::solve() const
     const auto fsource{build_fsource(flux, keff)};
     const auto upscatter{build_upscatter(flux)};
 
+    int max_scat_iter{0};
+    double max_scat_dphi{0.0};
+
     for (int g = 0; g < xslib.ngroup(); ++g)
     {
       const auto downscatter{build_downscatter(flux, g)};
@@ -176,16 +179,22 @@ Result Transport_solver::solve() const
           qmost[i * (pnorder + 1) + ell] = (ell == 0 ? fsource[g][i] : 0.0) + upscatter[g][i * (pnorder + 1) + ell]
                                            + downscatter[i * (pnorder + 1) + ell];
 
-      naiad::out << "group " << g << std::endl;
-
       for (int inner = 0; inner < tol.max_iter_scatter; ++inner)
       {
         const auto fluxg_old{flux[g]};
         flux[g] = sweeper->sweep(flux[g], qmost, g);
         const double dphi{convergence_phi_scat(flux[g], fluxg_old)};
-        naiad::out << "   ... scatter " << inner << " dphi=" << std::format("{:7.1e}", dphi) << std::endl;
         if (dphi < tol.scatter)
+        {
+          max_scat_iter = std::max(max_scat_iter, inner);
+          max_scat_dphi = std::max(max_scat_dphi, dphi);
           break;
+        }
+        else if (inner == tol.max_iter_scatter - 1)
+        {
+          max_scat_iter = tol.max_iter_scatter; // can't get bigger than this
+          max_scat_dphi = std::max(max_scat_dphi, dphi);
+        }
       }
     }
 
@@ -196,7 +205,8 @@ Result Transport_solver::solve() const
     const double delta_k{std::abs(keff - k_old)};
     const double delta_phi{convergence_phi(flux, flux_old)};
 
-    naiad::out << "it=" << std::format("{:4d}", iter) << " dk=" << std::format("{:7.1e}", delta_k)
+    naiad::out << "it=" << std::format("{:4d}", iter) << " maxscat_iter=" << std::format("{:4d}", max_scat_iter)
+               << " maxscat_dphi=" << std::format("{:7.1e}", max_scat_dphi) << " dk=" << std::format("{:7.1e}", delta_k)
                << " dphi=" << std::format("{:7.1e}", delta_phi) << " keff=" << std::format("{:8.6f}", keff)
                << std::endl;
 
