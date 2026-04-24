@@ -21,7 +21,8 @@ OBJ = main.o \
 	  analysis.o \
 	  quadrature1d.o \
 	  quadrature_gauss_legendre.o \
-	  transport.o
+	  transport.o \
+	  timer.o
 
 .PHONY : default all clean format
 
@@ -59,3 +60,4 @@ analysis.o : analysis.hpp geometry.hpp result.hpp exception_handler.hpp xslibrar
 quadrature1d.o : quadrature1d.hpp
 quadrature_gauss_legendre.o : quadrature_gauss_legendre.hpp quadrature1d.hpp
 transport.o : input.hpp geometry.hpp xslibrary.hpp result.hpp quadrature1d.hpp exception_handler.hpp
+timer.o : timer.hpp output.hpp

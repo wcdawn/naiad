@@ -14,6 +14,7 @@
 #include "quadrature1d.hpp"
 #include "quadrature_gauss_legendre.hpp"
 #include "result.hpp"
+#include "timer.hpp"
 #include "transport.hpp"
 #include "writer.hpp"
 #include "xslibrary.hpp"
@@ -60,6 +61,8 @@ int main(int argc, char * argv[])
 
   naiad::out << std::endl;
 
+  Timer timer{};
+
   // print arguments to terminal
   naiad::out << "=== COMMAND-LINE ARGUMENTS ===" << std::endl;
   for (const auto & x : args)
@@ -98,7 +101,9 @@ int main(int argc, char * argv[])
                      + std::format(" Requested pnorder={:d}", input.pnorder));
     // diffusion
     const Diffusion_solver diffusion{geo, input.bc_left, input.bc_right, xslib, input.tolerance()};
+    timer.start("diffusion");
     res = diffusion.solve();
+    timer.stop("diffusion");
   }
   else
   {
@@ -120,7 +125,9 @@ int main(int argc, char * argv[])
         std::make_unique<Quadrature_gauss_legendre>(input.snorder)};
     const Transport_solver transport{geo,   input.spatial_method, input.bc_left,    input.bc_right,
                                      xslib, input.tolerance(),    quadrature.get(), input.pnorder};
+    timer.start("transport");
     res = transport.solve();
+    timer.stop("transport");
   }
 
   naiad::out << "keff = " << std::format("{:.20f}", res.keff) << std::endl << std::endl;
@@ -145,9 +152,15 @@ int main(int argc, char * argv[])
       break;
   }
   if (analysis)
+  {
+    timer.start("analysis");
     analysis->summary(naiad::out);
+    timer.stop("analysis");
+  }
 
   const Writer writer{geo, res};
+
+  timer.start("output");
 
   const std::string fname_flux_csv{fname_stub + "_flux.csv"};
   naiad::out << "writing flux csv on " << fname_flux_csv << std::endl;
@@ -159,7 +172,11 @@ int main(int argc, char * argv[])
 
   naiad::out << std::endl;
 
+  timer.stop("output");
+
   exception.summary(naiad::out);
+
+  timer.summary(naiad::out);
 
   naiad::out << "END naiad ναϊάς" << std::endl;
   naiad::out << "Normal termination :)" << std::endl;
