@@ -152,6 +152,10 @@ Result Transport_solver::solve() const
   double fsum{1.0};
 
   naiad::out << "=== TRANSPORT POWER ITERATION ===" << std::endl;
+  naiad::out << std::endl;
+  naiad::out << "  Iter.    Max. Scat.    Max. Scat.    Delta    Delta     keff  " << std::endl;
+  naiad::out << "             Iter.          dphi       keff      phi            " << std::endl;
+  naiad::out << " -------  ------------  ------------  -------  -------  --------" << std::endl;
 
   for (int iter = 0; iter < tol.max_iter_phi; ++iter)
   {
@@ -205,10 +209,9 @@ Result Transport_solver::solve() const
     const double delta_k{std::abs(keff - k_old)};
     const double delta_phi{convergence_phi(flux, flux_old)};
 
-    naiad::out << "it=" << std::format("{:4d}", iter) << " maxscat_iter=" << std::format("{:4d}", max_scat_iter)
-               << " maxscat_dphi=" << std::format("{:7.1e}", max_scat_dphi) << " dk=" << std::format("{:7.1e}", delta_k)
-               << " dphi=" << std::format("{:7.1e}", delta_phi) << " keff=" << std::format("{:8.6f}", keff)
-               << std::endl;
+    naiad::out << std::format(" {:4d} ", iter) << "       " << std::format("{:5d}", max_scat_iter) << "        "
+               << std::format("{:7.1e}", max_scat_dphi) << "     " << std::format("{:7.1e}", delta_k) << "  "
+               << std::format("{:7.1e}", delta_phi) << "  " << std::format("{:8.6f}", keff) << std::endl;
 
     if ((delta_k < tol.k) && (delta_phi < tol.phi))
     {
