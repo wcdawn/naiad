@@ -215,7 +215,7 @@ Result Transport_solver::solve() const
 
     if ((delta_k < tol.k) && (delta_phi < tol.phi))
     {
-      naiad::out << "CONVERGENCE!" << std::endl;
+      naiad::out << std::endl << "CONVERGENCE!" << std::endl;
       break;
     }
 
@@ -338,9 +338,9 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
     }
   }
 
+  // parallel reduction
   std::vector<double> fluxg;
   fluxg.resize(geo.dx.size() * (pnorder + 1));
-
   for (int n = 0; n < nthread; ++n)
     for (std::size_t i = 0; i < geo.dx.size(); ++i)
       for (int ell = 0; ell < pnorder + 1; ++ell)
