@@ -1,3 +1,5 @@
+#include <omp.h>
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -48,6 +50,14 @@ int main(int argc, char * argv[])
   naiad::out.link_stream(fout);
 
   naiad::out << "BEGIN naiad ναϊάς" << std::endl;
+
+  int nthread;
+#pragma omp parallel default(none) shared(nthread)
+  {
+    nthread = omp_get_num_threads();
+  }
+  naiad::out << "using " << nthread << " threads" << std::endl;
+
   naiad::out << std::endl;
 
   // print arguments to terminal
