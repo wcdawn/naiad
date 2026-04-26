@@ -2,6 +2,9 @@
 
 #include "exception_handler.hpp"
 
+#include <memory>
+#include <cmath>
+
 namespace naiad
 {
 
