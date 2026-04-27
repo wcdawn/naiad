@@ -1,6 +1,7 @@
 #include "transport.hpp"
 
 #include <omp.h>
+#include <cmath>
 
 #include "exception_handler.hpp"
 
@@ -285,6 +286,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
         }
         default:
           exception.fatal(std::string{"Unknown bc_left= "} + enum2str(bc_left));
+          psi_edge = 0.0;
       }
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
@@ -319,6 +321,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
         }
         default:
           exception.fatal(std::string{"Unknown bc_right= "} + enum2str(bc_right));
+          psi_edge = 0.0;
       }
       for (long i = static_cast<long>(geo.dx.size()) - 1l; i >= 0; --i)
       {
