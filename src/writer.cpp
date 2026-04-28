@@ -21,7 +21,7 @@ void Writer::write_flux(const std::string & fname) const
   {
     ofs << std::format("{:.16e}", xcenter[i]);
     for (std::size_t g = 0; g < res.phi.size(); ++g)
-      ofs << " , " << std::format("{:.16e}", res.phi[g][i * (res.pnorder+1)]);
+      ofs << " , " << std::format("{:.16e}", res.phi[g][i * (res.pnorder + 1)]);
     ofs << std::endl;
   }
 }

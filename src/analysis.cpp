@@ -1,9 +1,9 @@
 #include "analysis.hpp"
 
-#include "exception_handler.hpp"
-
-#include <memory>
 #include <cmath>
+#include <memory>
+
+#include "exception_handler.hpp"
 
 namespace naiad
 {

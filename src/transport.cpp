@@ -1,6 +1,7 @@
 #include "transport.hpp"
 
 #include <omp.h>
+
 #include <cmath>
 
 #include "exception_handler.hpp"
