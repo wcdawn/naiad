@@ -218,6 +218,10 @@ Result Diffusion_solver::solve() const
   double fsum{1.0};
 
   naiad::out << "=== DIFFUSION POWER ITERATION ===" << std::endl;
+  naiad::out << std::endl;
+  naiad::out << "  Iter.     Delta    Delta     keff  " << std::endl;
+  naiad::out << "            keff      phi            " << std::endl;
+  naiad::out << " -------  --------  -------  --------" << std::endl;
 
   for (int iter = 0; iter < tol.max_iter_phi; ++iter)
   {
@@ -247,13 +251,12 @@ Result Diffusion_solver::solve() const
     const double delta_k{std::abs(keff - k_old)};
     const double delta_phi{convergence_phi(flux, flux_old)};
 
-    naiad::out << "it=" << std::format("{:4d}", iter) << " dk=" << std::format("{:7.1e}", delta_k)
-               << " dphi=" << std::format("{:7.1e}", delta_phi) << " keff=" << std::format("{:8.6f}", keff)
-               << std::endl;
+    naiad::out << std::format(" {:4d} ", iter) << "     " << std::format("{:7.1e}", delta_k) << "  "
+               << std::format("{:7.1e}", delta_phi) << "  " << std::format("{:8.6f}", keff) << std::endl;
 
     if ((delta_k < tol.k) && (delta_phi < tol.phi))
     {
-      naiad::out << "CONVERGENCE!" << std::endl;
+      naiad::out << std::endl << "CONVERGENCE!" << std::endl;
       break;
     }
 
