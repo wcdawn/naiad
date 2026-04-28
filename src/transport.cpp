@@ -13,12 +13,19 @@ Transport_solver::Transport_solver(const Geometry & geo_, const Spatial_method &
                                    const Boundary_condition & bc_left_, const Boundary_condition & bc_right_,
                                    const XSLibrary & xslib_, const Tolerance & tol_, const Quadrature1d * const quad_,
                                    const int pnorder_)
-  : geo{geo_}, bc_left{bc_left_}, bc_right{bc_right_}, xslib{xslib_}, tol{tol_}, quad{quad_}, pnorder{pnorder_}
+  : geo{geo_},
+    bc_left{bc_left_},
+    bc_right{bc_right_},
+    xslib{xslib_},
+    tol{tol_},
+    quad{quad_},
+    pnorder{pnorder_},
+    src_order{std::min(pnorder, xslib.nmoment() - 1)}
 {
   switch (spatial_method)
   {
     case (Spatial_method::diamond_difference):
-      sweeper = std::make_unique<Diamond_difference_sweeper>(geo, bc_left, bc_right, xslib, quad, pnorder);
+      sweeper = std::make_unique<Diamond_difference_sweeper>(geo, bc_left, bc_right, xslib, quad, pnorder, src_order);
       break;
     default:
       exception.fatal(std::string{"Unimplemented spatial transport method. requested="} + enum2str(spatial_method));
@@ -54,7 +61,7 @@ std::vector<std::vector<double>> Transport_solver::build_upscatter(const std::ve
   std::vector<std::vector<double>> upscatter;
   upscatter.resize(xslib.ngroup());
   for (auto & u : upscatter)
-    u.resize(geo.dx.size() * (pnorder + 1));
+    u.resize(geo.dx.size() * (src_order + 1));
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
     const auto & xsthis{xslib(geo.mat_map[i])};
@@ -62,8 +69,8 @@ std::vector<std::vector<double>> Transport_solver::build_upscatter(const std::ve
     {
       // only considering isotropic contribution (for now)
       for (int gprime = g + 1; gprime < xslib.ngroup(); ++gprime)
-        upscatter[g][i * (pnorder + 1) + 0] += xsthis.scatter[0](gprime, g) * flux[gprime][i * (pnorder + 1) + 0];
-      upscatter[g][i * (pnorder + 1) + 0] *= geo.dx[i];
+        upscatter[g][i * (src_order + 1) + 0] += xsthis.scatter[0](gprime, g) * flux[gprime][i * (pnorder + 1) + 0];
+      upscatter[g][i * (src_order + 1) + 0] *= geo.dx[i];
     }
   }
   return upscatter;
@@ -74,14 +81,14 @@ std::vector<double> Transport_solver::build_downscatter(const std::vector<std::v
                                                         const int g) const
 {
   std::vector<double> downscatter;
-  downscatter.resize(geo.dx.size() * (pnorder + 1));
+  downscatter.resize(geo.dx.size() * (src_order + 1));
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
     const auto & xsthis{xslib(geo.mat_map[i])};
     // only considering isotropic contribution for now
     for (int gprime = 0; gprime < g; ++gprime)
-      downscatter[i * (pnorder + 1) + 0] += xsthis.scatter[0](gprime, g) * flux[gprime][i * (pnorder + 1) + 0];
-    downscatter[i * (pnorder + 1) + 0] *= geo.dx[i];
+      downscatter[i * (src_order + 1) + 0] += xsthis.scatter[0](gprime, g) * flux[gprime][i * (pnorder + 1) + 0];
+    downscatter[i * (src_order + 1) + 0] *= geo.dx[i];
   }
   return downscatter;
 }
@@ -175,15 +182,13 @@ Result Transport_solver::solve() const
     {
       const auto downscatter{build_downscatter(flux, g)};
 
-      // TODO this should be down-sized to std::min(xslib.nmoment()+1, pnorder+1)
-      // That way, we would only store the non-zero sources.
-      // Right now, we would be storing lots of zero sources for pnorder > nmoment.
+      // Only store the non-zero sources.
       std::vector<double> qmost;
-      qmost.resize(geo.dx.size() * (pnorder + 1));
+      qmost.resize(geo.dx.size() * (src_order + 1));
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
-        for (int ell = 0; ell < pnorder + 1; ++ell)
-          qmost[i * (pnorder + 1) + ell] = (ell == 0 ? fsource[g][i] : 0.0) + upscatter[g][i * (pnorder + 1) + ell]
-                                           + downscatter[i * (pnorder + 1) + ell];
+        for (int ell = 0; ell < src_order + 1; ++ell)
+          qmost[i * (src_order + 1) + ell] = (ell == 0 ? fsource[g][i] : 0.0) + upscatter[g][i * (src_order + 1) + ell]
+                                             + downscatter[i * (src_order + 1) + ell];
 
       for (int inner = 0; inner < tol.max_iter_scatter; ++inner)
       {
@@ -232,8 +237,14 @@ Result Transport_solver::solve() const
 
 Transport_sweeper::Transport_sweeper(const Geometry & geo_, const Boundary_condition & bc_left_,
                                      const Boundary_condition & bc_right_, const XSLibrary & xslib_,
-                                     const Quadrature1d * const quad_, const int pnorder_)
-  : geo{geo_}, bc_left{bc_left_}, bc_right{bc_right_}, xslib{xslib_}, quad{quad_}, pnorder{pnorder_}
+                                     const Quadrature1d * const quad_, const int pnorder_, const int src_order_)
+  : geo{geo_},
+    bc_left{bc_left_},
+    bc_right{bc_right_},
+    xslib{xslib_},
+    quad{quad_},
+    pnorder{pnorder_},
+    src_order{src_order_}
 {
   psi_left.resize(xslib.ngroup());
   for (auto & psi : psi_left)
@@ -260,6 +271,9 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
   parfluxg.resize(nthread);
   for (auto & fluxg : parfluxg)
     fluxg.resize(geo.dx.size() * (pnorder + 1));
+
+  // TODO when indexing into qmost need to check if the value is zero.
+  // Right now, this isn't a problems since qmost is always isotropic.
 
 #pragma omp parallel for default(none) shared(quad, bc_left, bc_right, exception, psi_left, psi_right) \
     shared(fluxg_old, g, qmost) shared(parfluxg) shared(std::cout)
@@ -292,9 +306,9 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{
-            0.5
-            * (qmost[i * (pnorder + 1) + 0] + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
+        const double q{0.5
+                       * (qmost[i * (src_order + 1) + 0]
+                          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
         const double psi_center{psi_edge / (1.0 + 0.5 * xsthis.sigma_t[g] * geo.dx[i] / qp.x)
                                 + q / (xsthis.sigma_t[g] * geo.dx[i] + 2.0 * qp.x)};
         for (int n = 0; n < pnorder + 1; ++n)
@@ -327,9 +341,9 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       for (long i = static_cast<long>(geo.dx.size()) - 1l; i >= 0; --i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{
-            0.5
-            * (qmost[i * (pnorder + 1) + 0] + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
+        const double q{0.5
+                       * (qmost[i * (src_order + 1) + 0]
+                          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
         const double psi_center{psi_edge / (1.0 - 0.5 * xsthis.sigma_t[g] * geo.dx[i] / qp.x)
                                 + q / (xsthis.sigma_t[g] * geo.dx[i] - 2.0 * qp.x)};
         for (int n = 0; n < pnorder + 1; ++n)
