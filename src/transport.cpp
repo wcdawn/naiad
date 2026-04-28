@@ -27,6 +27,9 @@ Transport_solver::Transport_solver(const Geometry & geo_, const Spatial_method &
     case (Spatial_method::diamond_difference):
       sweeper = std::make_unique<Diamond_difference_sweeper>(geo, bc_left, bc_right, xslib, quad, pnorder, src_order);
       break;
+    case (Spatial_method::step_characteristic):
+      sweeper = std::make_unique<Step_characteristic_sweeper>(geo, bc_left, bc_right, xslib, quad, pnorder, src_order);
+      break;
     default:
       exception.fatal(std::string{"Unimplemented spatial transport method. requested="} + enum2str(spatial_method));
   }
@@ -350,6 +353,117 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
           fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
         // make sure to store the left boundary for the opposite directions
+        if (i == 0)
+          psi_left[g][j] = psi_edge;
+      }
+    }
+  }
+
+  // parallel reduction
+  std::vector<double> fluxg;
+  fluxg.resize(geo.dx.size() * (pnorder + 1));
+  for (int n = 0; n < nthread; ++n)
+    for (std::size_t i = 0; i < geo.dx.size(); ++i)
+      for (int ell = 0; ell < pnorder + 1; ++ell)
+        fluxg[i * (pnorder + 1) + ell] += parfluxg[n][i * (pnorder + 1) + ell];
+
+  return fluxg;
+}
+
+std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double> & fluxg_in,
+                                                       const std::vector<double> & qmost, const int g)
+{
+  const std::vector<double> fluxg_old{fluxg_in};
+
+  int nthread;
+#pragma omp parallel default(none) shared(nthread)
+  {
+    nthread = omp_get_num_threads();
+  }
+
+  // NOTE: I have stored a copy for each thread.
+  // This could be performed with locking instead.
+  std::vector<std::vector<double>> parfluxg; // [nthread][nx]
+  parfluxg.resize(nthread);
+  for (auto & fluxg : parfluxg)
+    fluxg.resize(geo.dx.size() * (pnorder + 1));
+
+  // TODO when indexing into qmost need to check if the value is zero.
+  // Right now, this isn't a problems since qmost is always isotropic.
+
+#pragma omp parallel for default(none) shared(quad, bc_left, bc_right, exception, psi_left, psi_right) \
+    shared(fluxg_old, g, qmost) shared(parfluxg) shared(std::cout)
+  for (std::size_t j = 0; j < quad->get_npoints(); ++j)
+  {
+    const int myid{omp_get_thread_num()};
+    std::vector<double> & fluxg{parfluxg[myid]};
+    const auto qp{quad->get_points()[j]};
+    if (qp.x > 0.0)
+    {
+      double psi_edge;
+      switch (bc_left)
+      {
+        case (Boundary_condition::vacuum):
+        {
+          psi_edge = 0.0;
+          break;
+        }
+        case (Boundary_condition::mirror):
+        {
+          const std::size_t jmirror{quad->get_npoints() - 1ul - j};
+          psi_edge = psi_left[g][jmirror];
+          break;
+        }
+        default:
+          exception.fatal(std::string{"Unknown bc_left= "} + enum2str(bc_left));
+          psi_edge = 0.0;
+      }
+      for (std::size_t i = 0; i < geo.dx.size(); ++i)
+      {
+        const auto & xsthis{xslib(geo.mat_map[i])};
+        const double q{0.5
+                       * (qmost[i * (src_order + 1) + 0]
+                          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
+        const double psi_center{psi_edge / (1.0 + xsthis.sigma_t[g] * geo.dx[i] / qp.x)
+                                + q / (qp.x + xsthis.sigma_t[g] * geo.dx[i])};
+        for (int n = 0; n < pnorder + 1; ++n)
+          fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
+        psi_edge = psi_center;
+        if (i == geo.dx.size() - 1ul)
+          psi_right[g][j] = psi_edge;
+      }
+    }
+    else
+    {
+      double psi_edge;
+      switch (bc_right)
+      {
+        case (Boundary_condition::vacuum):
+        {
+          psi_edge = 0.0;
+          break;
+        }
+        case (Boundary_condition::mirror):
+        {
+          const std::size_t jmirror{quad->get_npoints() - 1ul - j};
+          psi_edge = psi_right[g][jmirror];
+          break;
+        }
+        default:
+          exception.fatal(std::string{"Unknown bc_right= "} + enum2str(bc_right));
+          psi_edge = 0.0;
+      }
+      for (long i = static_cast<long>(geo.dx.size()) - 1l; i >= 0; --i)
+      {
+        const auto & xsthis{xslib(geo.mat_map[i])};
+        const double q{0.5
+                       * (qmost[i * (src_order + 1) + 0]
+                          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
+        const double psi_center{psi_edge / (1.0 - xsthis.sigma_t[g] * geo.dx[i] / qp.x)
+                                + q / (xsthis.sigma_t[g] * geo.dx[i] - qp.x)};
+        for (int n = 0; n < pnorder + 1; ++n)
+          fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
+        psi_edge = psi_center;
         if (i == 0)
           psi_left[g][j] = psi_edge;
       }

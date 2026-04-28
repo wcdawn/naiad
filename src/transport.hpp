@@ -46,6 +46,14 @@ class Diamond_difference_sweeper : public Transport_sweeper
     std::vector<double> sweep(const std::vector<double> & flux, const std::vector<double> & qmost, int g);
 };
 
+class Step_characteristic_sweeper : public Transport_sweeper
+{
+  public:
+
+    using Transport_sweeper::Transport_sweeper;
+    std::vector<double> sweep(const std::vector<double> & flux, const std::vector<double> & qmost, int g);
+};
+
 class Transport_solver
 {
   public:
