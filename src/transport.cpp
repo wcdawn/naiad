@@ -3,6 +3,7 @@
 #include <omp.h>
 
 #include <cmath>
+#include <unordered_set>
 
 #include "exception_handler.hpp"
 
@@ -25,8 +26,32 @@ Transport_solver::Transport_solver(const Geometry & geo_, const Spatial_method &
   switch (spatial_method)
   {
     case (Spatial_method::diamond_difference):
+    {
       sweeper = std::make_unique<Diamond_difference_sweeper>(geo, bc_left, bc_right, xslib, quad, pnorder, src_order);
+
+      double max_dx{0.0};
+      for (const auto & x : geo.dx)
+        max_dx = std::max(max_dx, x);
+
+      std::unordered_set<int> matcheck;
+      for (const auto & i : geo.mat_map)
+        matcheck.insert(i);
+      double max_sigma_t{0.0};
+      for (const auto & i : matcheck)
+        for (const auto & x : xslib(i).sigma_t)
+          max_sigma_t = std::max(max_sigma_t, x);
+
+      double min_mu{2.0};
+      for (const auto & qp : quad->get_points())
+        min_mu = std::min(min_mu, std::abs(qp.x));
+
+      const double max_factor{max_sigma_t * max_dx * 0.5 / min_mu};
+      if (max_factor >= 1.0)
+        exception.warning(
+            "Negative flux may be encountered with Diamond Difference sweeper. Apply additional spatial refinement.");
+
       break;
+    }
     case (Spatial_method::step_characteristic):
       sweeper = std::make_unique<Step_characteristic_sweeper>(geo, bc_left, bc_right, xslib, quad, pnorder, src_order);
       break;
@@ -284,7 +309,6 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
   {
     const int myid{omp_get_thread_num()};
     std::vector<double> & fluxg{parfluxg[myid]};
-    // TODO negative flux fixup
     const auto qp{quad->get_points()[j]};
     if (qp.x > 0.0)
     {
