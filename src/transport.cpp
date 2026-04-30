@@ -444,7 +444,7 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
         double q{0.0};
         for (int ell = 0; ell < src_order + 1; ++ell)
         {
-          const double f{(2.0 * ell + 1.0) * std::pow(qp.x, ell)};
+          const double f{(2.0 * ell + 1.0) * legendre(ell, qp.x)};
           q += f * qmost[i * (src_order + 1) + ell];
           q += f * fluxg_old[i * (pnorder + 1) + ell] * xsthis.scatter[ell](g, g) * geo.dx[i];
         }
@@ -452,7 +452,7 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
         const double psi_center{psi_edge / (1.0 + xsthis.sigma_t[g] * geo.dx[i] / qp.x)
                                 + q / (qp.x + xsthis.sigma_t[g] * geo.dx[i])};
         for (int n = 0; n < pnorder + 1; ++n)
-          fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
+          fluxg[i * (pnorder + 1) + n] += legendre(n, qp.x) * qp.w * psi_center;
         psi_edge = psi_center;
         if (i == geo.dx.size() - 1ul)
           set_psi_right(j, g, psi_edge);
@@ -467,7 +467,7 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
         double q{0.0};
         for (int ell = 0; ell < src_order + 1; ++ell)
         {
-          const double f{(2.0 * ell + 1.0) * std::pow(qp.x, ell)};
+          const double f{(2.0 * ell + 1.0) * legendre(ell, qp.x)};
           q += f * qmost[i * (src_order + 1) + ell];
           q += f * fluxg_old[i * (pnorder + 1) + ell] * xsthis.scatter[ell](g, g) * geo.dx[i];
         }
@@ -475,7 +475,7 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
         const double psi_center{psi_edge / (1.0 - xsthis.sigma_t[g] * geo.dx[i] / qp.x)
                                 + q / (xsthis.sigma_t[g] * geo.dx[i] - qp.x)};
         for (int n = 0; n < pnorder + 1; ++n)
-          fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
+          fluxg[i * (pnorder + 1) + n] += legendre(n, qp.x) * qp.w * psi_center;
         psi_edge = psi_center;
         if (i == 0)
           set_psi_left(j, g, psi_edge);
