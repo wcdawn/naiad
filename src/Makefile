@@ -59,5 +59,5 @@ writer.o : writer.hpp geometry.hpp result.hpp
 analysis.o : analysis.hpp geometry.hpp result.hpp exception_handler.hpp xslibrary.hpp
 quadrature1d.o : quadrature1d.hpp
 quadrature_gauss_legendre.o : quadrature_gauss_legendre.hpp quadrature1d.hpp
-transport.o : input.hpp geometry.hpp xslibrary.hpp result.hpp quadrature1d.hpp exception_handler.hpp
+transport.o : transport.hpp input.hpp geometry.hpp xslibrary.hpp result.hpp quadrature1d.hpp exception_handler.hpp
 timer.o : timer.hpp output.hpp
