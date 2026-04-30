@@ -39,10 +39,11 @@ class Transport_sweeper // abstract base class
     void set_psi_left(const std::size_t j, const int g, const double psi);
     void set_psi_right(const std::size_t j, const int g, const double psi);
 
-    // TODO can these be private?
     // [group][quadrature_jidx]
     std::vector<std::vector<double>> psi_left;
     std::vector<std::vector<double>> psi_right;
+
+    std::vector<double> flux_reduce(const std::vector<std::vector<double>> & parfluxg) const;
 };
 
 class Diamond_difference_sweeper : public Transport_sweeper

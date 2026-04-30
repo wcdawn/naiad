@@ -349,15 +349,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
     }
   }
 
-  // parallel reduction
-  std::vector<double> fluxg;
-  fluxg.resize(geo.dx.size() * (pnorder + 1));
-  for (int n = 0; n < nthread; ++n)
-    for (std::size_t i = 0; i < geo.dx.size(); ++i)
-      for (int ell = 0; ell < pnorder + 1; ++ell)
-        fluxg[i * (pnorder + 1) + ell] += parfluxg[n][i * (pnorder + 1) + ell];
-
-  return fluxg;
+  return flux_reduce(parfluxg);
 }
 
 double Transport_sweeper::get_psi_left(const std::size_t j, const int g) const
@@ -397,6 +389,18 @@ double Transport_sweeper::get_psi_right(const std::size_t j, const int g) const
 void Transport_sweeper::set_psi_left(const std::size_t j, const int g, const double psi) { psi_left[g][j] = psi; }
 
 void Transport_sweeper::set_psi_right(const std::size_t j, const int g, const double psi) { psi_right[g][j] = psi; }
+
+std::vector<double> Transport_sweeper::flux_reduce(const std::vector<std::vector<double>> & parfluxg) const
+{
+  // parallel reduction
+  std::vector<double> fluxg;
+  fluxg.resize(geo.dx.size() * (pnorder + 1));
+  for (std::size_t n = 0; n < parfluxg.size(); ++n)
+    for (std::size_t i = 0; i < geo.dx.size(); ++i)
+      for (int ell = 0; ell < pnorder + 1; ++ell)
+        fluxg[i * (pnorder + 1) + ell] += parfluxg[n][i * (pnorder + 1) + ell];
+  return fluxg;
+}
 
 std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double> & fluxg_in,
                                                        const std::vector<double> & qmost, const int g)
@@ -463,16 +467,7 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
       }
     }
   }
-
-  // parallel reduction
-  std::vector<double> fluxg;
-  fluxg.resize(geo.dx.size() * (pnorder + 1));
-  for (int n = 0; n < nthread; ++n)
-    for (std::size_t i = 0; i < geo.dx.size(); ++i)
-      for (int ell = 0; ell < pnorder + 1; ++ell)
-        fluxg[i * (pnorder + 1) + ell] += parfluxg[n][i * (pnorder + 1) + ell];
-
-  return fluxg;
+  return flux_reduce(parfluxg);
 }
 
 } // namespace naiad
