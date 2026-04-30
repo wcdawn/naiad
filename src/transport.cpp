@@ -3,11 +3,10 @@
 #include <omp.h>
 
 #include <cmath>
-#include "math.hpp"
-
 #include <unordered_set>
 
 #include "exception_handler.hpp"
+#include "math.hpp"
 
 namespace naiad
 {
