@@ -1,0 +1,13 @@
+xslib ../mgxs_twogroup_anisotropic.xs
+
+nx 1
+dx 9.491600
+mat_map 0
+
+spatial_method diamond_difference
+snorder 32
+refine 10
+pnorder 1
+
+bc_left mirror
+bc_right vacuum
