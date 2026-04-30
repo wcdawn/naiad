@@ -84,7 +84,6 @@ std::vector<std::vector<double>> Transport_solver::build_fsource(const std::vect
   return fsource;
 }
 
-// TODO this needs work for anisotropic scattering
 std::vector<std::vector<double>> Transport_solver::build_upscatter(const std::vector<std::vector<double>> & flux) const
 {
   std::vector<std::vector<double>> upscatter;
@@ -96,16 +95,17 @@ std::vector<std::vector<double>> Transport_solver::build_upscatter(const std::ve
     const auto & xsthis{xslib(geo.mat_map[i])};
     for (int g = 0; g < xslib.ngroup(); ++g)
     {
-      // only considering isotropic contribution (for now)
       for (int gprime = g + 1; gprime < xslib.ngroup(); ++gprime)
-        upscatter[g][i * (src_order + 1) + 0] += xsthis.scatter[0](gprime, g) * flux[gprime][i * (pnorder + 1) + 0];
-      upscatter[g][i * (src_order + 1) + 0] *= geo.dx[i];
+        for (int ell = 0; ell < src_order + 1; ++ell)
+          upscatter[g][i * (src_order + 1) + ell]
+              += xsthis.scatter[ell](gprime, g) * flux[gprime][i * (pnorder + 1) + ell];
+      for (int ell = 0; ell < src_order + 1; ++ell)
+        upscatter[g][i * (src_order + 1) + ell] *= geo.dx[i];
     }
   }
   return upscatter;
 }
 
-// TODO this needs work for anisotropic scattering
 std::vector<double> Transport_solver::build_downscatter(const std::vector<std::vector<double>> & flux,
                                                         const int g) const
 {
@@ -114,10 +114,12 @@ std::vector<double> Transport_solver::build_downscatter(const std::vector<std::v
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
     const auto & xsthis{xslib(geo.mat_map[i])};
-    // only considering isotropic contribution for now
     for (int gprime = 0; gprime < g; ++gprime)
-      downscatter[i * (src_order + 1) + 0] += xsthis.scatter[0](gprime, g) * flux[gprime][i * (pnorder + 1) + 0];
-    downscatter[i * (src_order + 1) + 0] *= geo.dx[i];
+      for (int ell = 0; ell < src_order + 1; ++ell)
+        downscatter[i * (src_order + 1) + ell]
+            += xsthis.scatter[ell](gprime, g) * flux[gprime][i * (pnorder + 1) + ell];
+    for (int ell = 0; ell < src_order + 1; ++ell)
+      downscatter[i * (src_order + 1) + ell] *= geo.dx[i];
   }
   return downscatter;
 }
