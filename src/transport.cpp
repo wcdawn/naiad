@@ -3,6 +3,8 @@
 #include <omp.h>
 
 #include <cmath>
+#include "math.hpp"
+
 #include <unordered_set>
 
 #include "exception_handler.hpp"
@@ -300,9 +302,6 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
   for (auto & fluxg : parfluxg)
     fluxg.resize(geo.dx.size() * (pnorder + 1));
 
-  // TODO when indexing into qmost need to check if the value is zero.
-  // Right now, this isn't a problems since qmost is always isotropic.
-
 #pragma omp parallel for default(none) shared(quad, bc_left, bc_right, exception, psi_left, psi_right) \
     shared(fluxg_old, g, qmost) shared(parfluxg) shared(std::cout)
   for (std::size_t j = 0; j < quad->get_npoints(); ++j)
@@ -316,13 +315,18 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{0.5
-                       * (qmost[i * (src_order + 1) + 0]
-                          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
+        double q{0.0};
+        for (int ell = 0; ell < src_order + 1; ++ell)
+        {
+          const double f{(2.0 * ell + 1.0) * legendre(ell, qp.x)};
+          q += f * qmost[i * (src_order + 1) + ell];
+          q += f * fluxg_old[i * (pnorder + 1) + ell] * xsthis.scatter[ell](g, g) * geo.dx[i];
+        }
+        q *= 0.5;
         const double psi_center{psi_edge / (1.0 + 0.5 * xsthis.sigma_t[g] * geo.dx[i] / qp.x)
                                 + q / (xsthis.sigma_t[g] * geo.dx[i] + 2.0 * qp.x)};
         for (int n = 0; n < pnorder + 1; ++n)
-          fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
+          fluxg[i * (pnorder + 1) + n] += legendre(n, qp.x) * qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
         if (i == geo.dx.size() - 1ul)
           set_psi_right(j, g, psi_edge);
@@ -334,13 +338,18 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       for (long i = static_cast<long>(geo.dx.size()) - 1l; i >= 0; --i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{0.5
-                       * (qmost[i * (src_order + 1) + 0]
-                          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
+        double q{0.0};
+        for (int ell = 0; ell < src_order + 1; ++ell)
+        {
+          const double f{(2.0 * ell + 1.0) * legendre(ell, qp.x)};
+          q += f * qmost[i * (src_order + 1) + ell];
+          q += f * fluxg_old[i * (pnorder + 1) + ell] * xsthis.scatter[ell](g, g) * geo.dx[i];
+        }
+        q *= 0.5;
         const double psi_center{psi_edge / (1.0 - 0.5 * xsthis.sigma_t[g] * geo.dx[i] / qp.x)
                                 + q / (xsthis.sigma_t[g] * geo.dx[i] - 2.0 * qp.x)};
         for (int n = 0; n < pnorder + 1; ++n)
-          fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
+          fluxg[i * (pnorder + 1) + n] += legendre(n, qp.x) * qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
         // make sure to store the left boundary for the opposite directions
         if (i == 0)
@@ -420,9 +429,6 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
   for (auto & fluxg : parfluxg)
     fluxg.resize(geo.dx.size() * (pnorder + 1));
 
-  // TODO when indexing into qmost need to check if the value is zero.
-  // Right now, this isn't a problems since qmost is always isotropic.
-
 #pragma omp parallel for default(none) shared(quad, bc_left, bc_right, exception, psi_left, psi_right) \
     shared(fluxg_old, g, qmost) shared(parfluxg) shared(std::cout)
   for (std::size_t j = 0; j < quad->get_npoints(); ++j)
@@ -436,9 +442,14 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{0.5
-                       * (qmost[i * (src_order + 1) + 0]
-                          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
+        double q{0.0};
+        for (int ell = 0; ell < src_order + 1; ++ell)
+        {
+          const double f{(2.0 * ell + 1.0) * std::pow(qp.x, ell)};
+          q += f * qmost[i * (src_order + 1) + ell];
+          q += f * fluxg_old[i * (pnorder + 1) + ell] * xsthis.scatter[ell](g, g) * geo.dx[i];
+        }
+        q *= 0.5;
         const double psi_center{psi_edge / (1.0 + xsthis.sigma_t[g] * geo.dx[i] / qp.x)
                                 + q / (qp.x + xsthis.sigma_t[g] * geo.dx[i])};
         for (int n = 0; n < pnorder + 1; ++n)
@@ -454,9 +465,14 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
       for (long i = static_cast<long>(geo.dx.size()) - 1l; i >= 0; --i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
-        const double q{0.5
-                       * (qmost[i * (src_order + 1) + 0]
-                          + fluxg_old[i * (pnorder + 1) + 0] * xsthis.scatter[0](g, g) * geo.dx[i])};
+        double q{0.0};
+        for (int ell = 0; ell < src_order + 1; ++ell)
+        {
+          const double f{(2.0 * ell + 1.0) * std::pow(qp.x, ell)};
+          q += f * qmost[i * (src_order + 1) + ell];
+          q += f * fluxg_old[i * (pnorder + 1) + ell] * xsthis.scatter[ell](g, g) * geo.dx[i];
+        }
+        q *= 0.5;
         const double psi_center{psi_edge / (1.0 - xsthis.sigma_t[g] * geo.dx[i] / qp.x)
                                 + q / (xsthis.sigma_t[g] * geo.dx[i] - qp.x)};
         for (int n = 0; n < pnorder + 1; ++n)
