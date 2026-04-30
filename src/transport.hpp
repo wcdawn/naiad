@@ -33,6 +33,13 @@ class Transport_sweeper // abstract base class
     const int pnorder;
     const int src_order;
 
+    double get_psi_left(const std::size_t j, const int g) const;
+    double get_psi_right(const std::size_t j, const int g) const;
+
+    void set_psi_left(const std::size_t j, const int g, const double psi);
+    void set_psi_right(const std::size_t j, const int g, const double psi);
+
+    // TODO can these be private?
     // [group][quadrature_jidx]
     std::vector<std::vector<double>> psi_left;
     std::vector<std::vector<double>> psi_right;

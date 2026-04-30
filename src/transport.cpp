@@ -309,27 +309,10 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
   {
     const int myid{omp_get_thread_num()};
     std::vector<double> & fluxg{parfluxg[myid]};
-    const auto qp{quad->get_points()[j]};
+    const auto & qp{quad->get_points()[j]};
     if (qp.x > 0.0)
     {
-      double psi_edge;
-      switch (bc_left)
-      {
-        case (Boundary_condition::vacuum):
-        {
-          psi_edge = 0.0;
-          break;
-        }
-        case (Boundary_condition::mirror):
-        {
-          const std::size_t jmirror{quad->get_npoints() - 1ul - j};
-          psi_edge = psi_left[g][jmirror];
-          break;
-        }
-        default:
-          exception.fatal(std::string{"Unknown bc_left= "} + enum2str(bc_left));
-          psi_edge = 0.0;
-      }
+      double psi_edge{get_psi_left(j, g)};
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
@@ -342,29 +325,12 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
           fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
         psi_edge = 2.0 * psi_center - psi_edge;
         if (i == geo.dx.size() - 1ul)
-          psi_right[g][j] = psi_edge;
+          set_psi_right(j, g, psi_edge);
       }
     }
     else
     {
-      double psi_edge;
-      switch (bc_right)
-      {
-        case (Boundary_condition::vacuum):
-        {
-          psi_edge = 0.0;
-          break;
-        }
-        case (Boundary_condition::mirror):
-        {
-          const std::size_t jmirror{quad->get_npoints() - 1ul - j};
-          psi_edge = psi_right[g][jmirror];
-          break;
-        }
-        default:
-          exception.fatal(std::string{"Unknown bc_right= "} + enum2str(bc_right));
-          psi_edge = 0.0;
-      }
+      double psi_edge{get_psi_right(j, g)};
       for (long i = static_cast<long>(geo.dx.size()) - 1l; i >= 0; --i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
@@ -378,7 +344,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
         psi_edge = 2.0 * psi_center - psi_edge;
         // make sure to store the left boundary for the opposite directions
         if (i == 0)
-          psi_left[g][j] = psi_edge;
+          set_psi_left(j, g, psi_edge);
       }
     }
   }
@@ -393,6 +359,44 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
 
   return fluxg;
 }
+
+double Transport_sweeper::get_psi_left(const std::size_t j, const int g) const
+{
+  switch (bc_left)
+  {
+    case (Boundary_condition::vacuum):
+      return 0.0;
+    case (Boundary_condition::mirror):
+    {
+      const std::size_t jmirror{quad->get_npoints() - 1ul - j};
+      return psi_left[g][jmirror];
+    }
+    default:
+      exception.fatal(std::string{"Unknown bc_left="} + enum2str(bc_left));
+  }
+  return 0.0;
+}
+
+double Transport_sweeper::get_psi_right(const std::size_t j, const int g) const
+{
+  switch (bc_right)
+  {
+    case (Boundary_condition::vacuum):
+      return 0.0;
+    case (Boundary_condition::mirror):
+    {
+      const std::size_t jmirror{quad->get_npoints() - 1ul - j};
+      return psi_right[g][jmirror];
+    }
+    default:
+      exception.fatal(std::string{"Unknown bc_right="} + enum2str(bc_right));
+  }
+  return 0.0;
+}
+
+void Transport_sweeper::set_psi_left(const std::size_t j, const int g, const double psi) { psi_left[g][j] = psi; }
+
+void Transport_sweeper::set_psi_right(const std::size_t j, const int g, const double psi) { psi_right[g][j] = psi; }
 
 std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double> & fluxg_in,
                                                        const std::vector<double> & qmost, const int g)
@@ -421,27 +425,10 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
   {
     const int myid{omp_get_thread_num()};
     std::vector<double> & fluxg{parfluxg[myid]};
-    const auto qp{quad->get_points()[j]};
+    const auto & qp{quad->get_points()[j]};
     if (qp.x > 0.0)
     {
-      double psi_edge;
-      switch (bc_left)
-      {
-        case (Boundary_condition::vacuum):
-        {
-          psi_edge = 0.0;
-          break;
-        }
-        case (Boundary_condition::mirror):
-        {
-          const std::size_t jmirror{quad->get_npoints() - 1ul - j};
-          psi_edge = psi_left[g][jmirror];
-          break;
-        }
-        default:
-          exception.fatal(std::string{"Unknown bc_left= "} + enum2str(bc_left));
-          psi_edge = 0.0;
-      }
+      double psi_edge{get_psi_left(j, g)};
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
@@ -454,29 +441,12 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
           fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
         psi_edge = psi_center;
         if (i == geo.dx.size() - 1ul)
-          psi_right[g][j] = psi_edge;
+          set_psi_right(j, g, psi_edge);
       }
     }
     else
     {
-      double psi_edge;
-      switch (bc_right)
-      {
-        case (Boundary_condition::vacuum):
-        {
-          psi_edge = 0.0;
-          break;
-        }
-        case (Boundary_condition::mirror):
-        {
-          const std::size_t jmirror{quad->get_npoints() - 1ul - j};
-          psi_edge = psi_right[g][jmirror];
-          break;
-        }
-        default:
-          exception.fatal(std::string{"Unknown bc_right= "} + enum2str(bc_right));
-          psi_edge = 0.0;
-      }
+      double psi_edge{get_psi_right(j, g)};
       for (long i = static_cast<long>(geo.dx.size()) - 1l; i >= 0; --i)
       {
         const auto & xsthis{xslib(geo.mat_map[i])};
@@ -489,7 +459,7 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
           fluxg[i * (pnorder + 1) + n] += std::pow(qp.x, n) * qp.w * psi_center;
         psi_edge = psi_center;
         if (i == 0)
-          psi_left[g][j] = psi_edge;
+          set_psi_left(j, g, psi_edge);
       }
     }
   }
