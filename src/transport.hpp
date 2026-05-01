@@ -66,14 +66,15 @@ class Transport_solver
 {
   public:
 
-    Transport_solver(const Geometry & geo_, const Spatial_method & spatial_method, const Boundary_condition & bc_left_,
-                     const Boundary_condition & bc_right, const XSLibrary & xslib_, const Tolerance & tol_,
-                     const Quadrature1d * const quad_, const int pnorder_);
+    Transport_solver(const Geometry & geo_, const Spatial_method & spatial_method, const Calculation_type & calc_type_,
+                     const Boundary_condition & bc_left_, const Boundary_condition & bc_right, const XSLibrary & xslib_,
+                     const Tolerance & tol_, const Quadrature1d * const quad_, const int pnorder_);
     Result solve() const;
 
   private:
 
     const Geometry & geo;
+    const Calculation_type calc_type;
     const Boundary_condition bc_left;
     const Boundary_condition bc_right;
     const XSLibrary & xslib;
@@ -90,6 +91,7 @@ class Transport_solver
                                                    const double keff) const;
     std::vector<std::vector<double>> build_upscatter(const std::vector<std::vector<double>> & flux) const;
     std::vector<double> build_downscatter(const std::vector<std::vector<double>> & flux, const int g) const;
+    std::vector<std::vector<double>> build_fixed_source() const;
 
     double fission_summation(const std::vector<std::vector<double>> & flux) const;
 

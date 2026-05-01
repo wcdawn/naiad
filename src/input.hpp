@@ -50,6 +50,15 @@ enum class Boundary_condition
 Boundary_condition str2enum_boundary_condition(const std::string & str);
 std::string enum2str(const Boundary_condition bc);
 
+enum class Calculation_type
+{
+  keff,
+  speng,
+};
+
+Calculation_type str2enum_calculation_type(const std::string & str);
+std::string enum2str(const Calculation_type calc);
+
 class Input
 {
   public:
@@ -75,6 +84,8 @@ class Input
     Boundary_condition bc_right{Boundary_condition::mirror};
 
     Analysis_reference analysis_reference{Analysis_reference::none};
+
+    Calculation_type calc_type{Calculation_type::keff};
 
   private:
 

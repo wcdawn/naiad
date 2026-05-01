@@ -134,6 +134,12 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
       ifs >> aref;
       analysis_reference = str2enum_analysis_reference(aref);
     }
+    else if (card == "calc_type")
+    {
+      std::string ctype;
+      ifs >> ctype;
+      calc_type = str2enum_calculation_type(ctype);
+    }
 
     else
     {
@@ -184,6 +190,9 @@ void Input::summary(std::ostream & os) const
   os << "  tol_scatter= " << std::format("{:.1e}", tol.scatter) << std::endl;
   os << "  max_iter_phi= " << std::format("{:d}", tol.max_iter_phi) << std::endl;
   os << "  max_iter_scatter= " << std::format("{:d}", tol.max_iter_scatter) << std::endl;
+
+  os << "analysis reference: " << enum2str(analysis_reference) << std::endl;
+  os << "calculation type: " << enum2str(calc_type) << std::endl;
 
   os << std::endl;
 }
@@ -250,6 +259,31 @@ std::string enum2str(const Boundary_condition bc)
     default:
       exception.fatal(std::string{"Unable to identify boundary condition name: "}
                       + std::format("{:d}", static_cast<int>(bc)));
+      return "unknown";
+  }
+}
+
+Calculation_type str2enum_calculation_type(const std::string & str)
+{
+  if (str == "keff")
+    return Calculation_type::keff;
+  if (str == "speng")
+    return Calculation_type::speng;
+  exception.fatal("Unable to identify calculation type: " + str);
+  return Calculation_type::keff;
+}
+
+std::string enum2str(const Calculation_type calc)
+{
+  switch (calc)
+  {
+    case (Calculation_type::keff):
+      return "keff";
+    case (Calculation_type::speng):
+      return "speng";
+    default:
+      exception.fatal(std::string{"Unable to identify calculation type name: "}
+                      + std::format("{:d}", static_cast<int>(calc)));
       return "unknown";
   }
 }

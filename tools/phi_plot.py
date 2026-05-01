@@ -58,7 +58,7 @@ if __name__ == "__main__":
             plt.legend()
         plt.xlabel("x [cm]")
         plt.ylabel("$\\phi(x)$ (arb. units)")
-        plt.title("Naiad $\\phi$ {:d}".format(n))
+        plt.title("Naiad $\\phi_{{{:d}}}$".format(n))
         plt.tight_layout()
         plt.savefig("phi_{:d}".format(n) + "." + extension, dpi=resolution)
 
