@@ -191,6 +191,9 @@ void Input::summary(std::ostream & os) const
   os << "  max_iter_phi= " << std::format("{:d}", tol.max_iter_phi) << std::endl;
   os << "  max_iter_scatter= " << std::format("{:d}", tol.max_iter_scatter) << std::endl;
 
+  os << "analysis reference: " << enum2str(analysis_reference) << std::endl;
+  os << "calculation type: " << enum2str(calc_type) << std::endl;
+
   os << std::endl;
 }
 
