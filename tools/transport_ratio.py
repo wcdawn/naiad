@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import sys
 
 import plot_settings
-import transportxs_plot
+import phi_plot
 import xslib
 from private_ebound import c5_586
 
@@ -23,42 +23,61 @@ def compute_groupwise_average(x, dx, table):
     avg = np.zeros(ngroup)
     xsum = 0.0
     for i in range(nx):
-        if (x[i] < 50.):
-        #if (x[i] > 50.):
+        if x[i] < 50.0:
+            # if (x[i] > 50.):
             avg += dx[i] * table[:, i]
             xsum += dx[i]
     avg /= xsum
     return avg
+
 
 if __name__ == "__main__":
 
     extension = "png"
     resolution = 600
 
-    fname = sys.argv[1]  # transportxs
+    fname = sys.argv[1]  # phi
     fname_xslib = sys.argv[2]  # xs library
-    hydrogen_name = sys.argv[3]  # name in xslib for hydrogen
+    hydrogen_name = sys.argv[3]  # name in xslib for material of interest
 
-    x, sigma_tr = transportxs_plot.load(fname)
-    pnorder = sigma_tr.shape[0]
-    ngroup = sigma_tr.shape[1]
-    nx = sigma_tr.shape[2]
+    x, phi = phi_plot.load(fname)
+    pnorder = phi.shape[0]
+    ngroup = phi.shape[1]
+    nx = phi.shape[2]
 
     dx = compute_dx(x)
-    sigtr = compute_groupwise_average(x, dx, sigma_tr[1, :, :])
+    phi0_spectrum = compute_groupwise_average(x, dx, phi[0, :, :])
+    phi1_spectrum = compute_groupwise_average(x, dx, phi[1, :, :])
 
-    #egrid = anl425
     egrid = c5_586
+
     ebins_midpoint = np.zeros(ngroup)
     for g in range(ngroup):
         ebins_midpoint[g] = 0.5 * (egrid[g] + egrid[g + 1])
 
     xs = xslib.load(fname_xslib)
     sigt = xs[hydrogen_name]["sigma_t"].copy()
+    inscatter = xslib.inscatter(xs[hydrogen_name], phi1_spectrum)
     outscatter = xslib.outscatter(xs[hydrogen_name])
 
+    # just for plotting
+    for g in range(ngroup):
+        dE = egrid[g] - egrid[g + 1]
+        phi0_spectrum[g] /= dE
+        phi1_spectrum[g] /= dE
+
     plt.figure()
-    plt.loglog(ebins_midpoint, sigtr, "-x")
+    plt.loglog(ebins_midpoint, phi0_spectrum, label="$\\phi_0$")
+    plt.loglog(ebins_midpoint, phi1_spectrum, label="$\\phi_1$")
+    plt.legend()
+    plt.xlabel("Energy [eV]")
+    plt.ylabel("Spectrum [-]")
+    plt.title("Spectra")
+    plt.tight_layout()
+    plt.savefig("flux_moment_spectra." + extension, dpi=resolution)
+
+    plt.figure()
+    plt.loglog(ebins_midpoint, inscatter, "-x")
     plt.xlabel("Energy [eV]")
     plt.ylabel("Cross Section [barn]")
     plt.title("Transport Cross Section")
@@ -74,10 +93,10 @@ if __name__ == "__main__":
     plt.savefig("sigma_t_spectrum." + extension, dpi=resolution)
 
     plt.figure()
-    plt.semilogx(ebins_midpoint, sigtr / sigt, "-x", label="In-Scatter")
+    plt.semilogx(ebins_midpoint, inscatter / sigt, "-x", label="In-Scatter")
     plt.semilogx(ebins_midpoint, outscatter / sigt, "-x", label="Out-Scatter")
     plt.legend()
-    plt.ylim((0.2,1.2))
+    plt.ylim((0.2, 1.2))
     plt.xlabel("Energy [eV]")
     plt.ylabel("$\\Sigma_{tr} / \\Sigma_{t}$")
     plt.title("Transport-to-Total Cross Section Ratio")
@@ -87,6 +106,8 @@ if __name__ == "__main__":
     with open("sigma_tr_ratio.csv", "w") as f:
         f.write("Energy [eV] , Sigma_tr / Sigma_t\n")
         for i in range(len(ebins_midpoint)):
-            f.write("{:.12e} , {:.12e}\n".format(ebins_midpoint[i], sigtr[i] / sigt[i]))
+            f.write(
+                "{:.12e} , {:.12e}\n".format(ebins_midpoint[i], inscatter[i] / sigt[i])
+            )
 
     plt.show()
