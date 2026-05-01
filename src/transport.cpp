@@ -3,6 +3,7 @@
 #include <omp.h>
 
 #include <cmath>
+#include <numbers>
 #include <unordered_set>
 
 #include "exception_handler.hpp"
@@ -59,6 +60,30 @@ Transport_solver::Transport_solver(const Geometry & geo_, const Spatial_method &
     default:
       exception.fatal(std::string{"Unimplemented spatial transport method. requested="} + enum2str(spatial_method));
   }
+}
+
+std::vector<std::vector<double>> Transport_solver::build_fixed_source() const
+{
+  constexpr double Lx{100.};
+  const std::string u235_name{"FUE_U235"};
+  const auto & xs{xslib(u235_name)};
+  naiad::out << "Building fixed source using fission spectrum from: " << u235_name << std::endl;
+
+  std::vector<std::vector<double>> q;
+  q.resize(xslib.ngroup());
+  for (auto & qq : q)
+    qq.resize(geo.dx.size());
+
+  const auto & xcenter{geo.xcenter()};
+
+  for (std::size_t i = 0; i < geo.dx.size(); ++i)
+  {
+    const double f{(xcenter[i] < 0.5 * Lx) ? std::cos(std::numbers::pi * xcenter[i] / Lx) : 0.0};
+    for (int g = 0; g < xslib.ngroup(); ++g)
+      q[g][i] = xs.chi[g] * f;
+  }
+
+  return q;
 }
 
 std::vector<std::vector<double>> Transport_solver::build_fsource(const std::vector<std::vector<double>> & flux,
@@ -191,6 +216,8 @@ Result Transport_solver::solve() const
   double keff{1.0};
   double fsum{1.0};
 
+  const auto qfixed{build_fixed_source()}; // TODO only for speng
+
   naiad::out << "=== TRANSPORT POWER ITERATION ===" << std::endl;
   naiad::out << std::endl;
   naiad::out << "  Iter.    Max. Scat.    Max. Scat.    Delta    Delta     keff  " << std::endl;
@@ -216,10 +243,18 @@ Result Transport_solver::solve() const
       // Only store the non-zero sources.
       std::vector<double> qmost;
       qmost.resize(geo.dx.size() * (src_order + 1));
+      // fixed source is always isotropic
+      if (!qfixed.empty())
+        for (std::size_t i = 0; i < geo.dx.size(); ++i)
+          qmost[i * (src_order + 1) + 0] = qfixed[g][i];
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
-        for (int ell = 0; ell < src_order + 1; ++ell)
-          qmost[i * (src_order + 1) + ell] = (ell == 0 ? fsource[g][i] : 0.0) + upscatter[g][i * (src_order + 1) + ell]
-                                             + downscatter[i * (src_order + 1) + ell];
+      {
+        qmost[i * (src_order + 1) + 0]
+            += fsource[g][i] + upscatter[g][i * (src_order + 1) + 0] + downscatter[i * (src_order + 1) + 0];
+        for (int ell = 1; ell < src_order + 1; ++ell)
+          qmost[i * (src_order + 1) + ell]
+              += upscatter[g][i * (src_order + 1) + ell] + downscatter[i * (src_order + 1) + ell];
+      }
 
       for (int inner = 0; inner < tol.max_iter_scatter; ++inner)
       {

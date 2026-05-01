@@ -90,6 +90,7 @@ class Transport_solver
                                                    const double keff) const;
     std::vector<std::vector<double>> build_upscatter(const std::vector<std::vector<double>> & flux) const;
     std::vector<double> build_downscatter(const std::vector<std::vector<double>> & flux, const int g) const;
+    std::vector<std::vector<double>> build_fixed_source() const;
 
     double fission_summation(const std::vector<std::vector<double>> & flux) const;
 
