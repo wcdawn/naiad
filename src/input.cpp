@@ -254,4 +254,29 @@ std::string enum2str(const Boundary_condition bc)
   }
 }
 
+Calculation_type str2enum_calculation_type(const std::string & str)
+{
+  if (str == "keff")
+    return Calculation_type::keff;
+  if (str == "speng")
+    return Calculation_type::speng;
+  exception.fatal("Unable to identify calculation type: " + str);
+  return Calculation_type::keff;
+}
+
+std::string enum2str(const Calculation_type calc)
+{
+  switch (calc)
+  {
+    case (Calculation_type::keff):
+      return "keff";
+    case (Calculation_type::speng):
+      return "speng";
+    default:
+      exception.fatal(std::string{"Unable to identify calculation type name: "}
+                      + std::format("{:d}", static_cast<int>(calc)));
+      return "unknown";
+  }
+}
+
 } // namespace naiad
