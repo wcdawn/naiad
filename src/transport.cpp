@@ -13,10 +13,11 @@ namespace naiad
 {
 
 Transport_solver::Transport_solver(const Geometry & geo_, const Spatial_method & spatial_method,
-                                   const Boundary_condition & bc_left_, const Boundary_condition & bc_right_,
-                                   const XSLibrary & xslib_, const Tolerance & tol_, const Quadrature1d * const quad_,
-                                   const int pnorder_)
+                                   const Calculation_type & calc_type_, const Boundary_condition & bc_left_,
+                                   const Boundary_condition & bc_right_, const XSLibrary & xslib_,
+                                   const Tolerance & tol_, const Quadrature1d * const quad_, const int pnorder_)
   : geo{geo_},
+    calc_type{calc_type_},
     bc_left{bc_left_},
     bc_right{bc_right_},
     xslib{xslib_},
@@ -64,6 +65,9 @@ Transport_solver::Transport_solver(const Geometry & geo_, const Spatial_method &
 
 std::vector<std::vector<double>> Transport_solver::build_fixed_source() const
 {
+  if (calc_type != Calculation_type::speng)
+    return {};
+
   constexpr double Lx{100.};
   const std::string u235_name{"FUE_U235"};
   const auto & xs{xslib(u235_name)};
@@ -276,7 +280,7 @@ Result Transport_solver::solve() const
     }
 
     fsum = fission_summation(flux);
-    if (iter > 0)
+    if ((iter > 0) && (calc_type == Calculation_type::keff))
       keff *= fsum / fsum_old;
 
     const double delta_k{std::abs(keff - k_old)};

@@ -66,14 +66,15 @@ class Transport_solver
 {
   public:
 
-    Transport_solver(const Geometry & geo_, const Spatial_method & spatial_method, const Boundary_condition & bc_left_,
-                     const Boundary_condition & bc_right, const XSLibrary & xslib_, const Tolerance & tol_,
-                     const Quadrature1d * const quad_, const int pnorder_);
+    Transport_solver(const Geometry & geo_, const Spatial_method & spatial_method, const Calculation_type & calc_type_,
+                     const Boundary_condition & bc_left_, const Boundary_condition & bc_right, const XSLibrary & xslib_,
+                     const Tolerance & tol_, const Quadrature1d * const quad_, const int pnorder_);
     Result solve() const;
 
   private:
 
     const Geometry & geo;
+    const Calculation_type calc_type;
     const Boundary_condition bc_left;
     const Boundary_condition bc_right;
     const XSLibrary & xslib;
