@@ -134,6 +134,12 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
       ifs >> aref;
       analysis_reference = str2enum_analysis_reference(aref);
     }
+    else if (card == "calc_type")
+    {
+      std::string ctype;
+      ifs >> ctype;
+      calc_type = str2enum_calculation_type(ctype);
+    }
 
     else
     {

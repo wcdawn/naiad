@@ -85,6 +85,8 @@ class Input
 
     Analysis_reference analysis_reference{Analysis_reference::none};
 
+    Calculation_type calc_type{Calculation_type::keff};
+
   private:
 
     const std::string filename;
