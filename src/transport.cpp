@@ -220,7 +220,9 @@ Result Transport_solver::solve() const
   double keff{1.0};
   double fsum{1.0};
 
-  const auto qfixed{build_fixed_source()}; // TODO only for speng
+  // this will return an empty vector if calc_type
+  // does not correspond to a fixed source problem
+  const auto qfixed{build_fixed_source()};
 
   naiad::out << "=== TRANSPORT POWER ITERATION ===" << std::endl;
   naiad::out << std::endl;
