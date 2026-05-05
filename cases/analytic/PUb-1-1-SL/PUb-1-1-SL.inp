@@ -2,7 +2,7 @@ xslib ../mgxs_onegroup_anisotropic.xs
 
 nx 1
 dx 0.79606
-mat_map 1
+mat_map Pu-239b
 
 spatial_method diamond_difference
 snorder 64

@@ -6,9 +6,7 @@ spatial_method diamond_difference
 nx 5
 
 dx 10.0 10.0 10.0 10.0 10.0
-#mat_map fuel
-# TODO this needs to be implemented to work on mappings between strings/int whatever
-mat_map 0 0 0 0 0
+mat_map FUEL FUEL FUEL FUEL FUEL
 
 refine 2
 

@@ -3,7 +3,7 @@
 # CXX = g++
 CXX = /opt/homebrew/opt/llvm@22/bin/clang++
 CXXFLAGS = -Wall -Wextra -O3 -std=c++23 -fopenmp
-# CXXFLAGS = -Wall -Wextra -O0 -g -std=c++23
+# CXXFLAGS = -Wall -Wextra -O0 -g -std=c++23 -fopenmp
 
 CLANG_FORMAT = /opt/homebrew/opt/llvm@22/bin/clang-format
 

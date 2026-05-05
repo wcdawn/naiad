@@ -82,7 +82,7 @@ void Geometry::summary(std::ostream & os) const
   os << "minimum dx= " << std::format("{:.2e}", *std::min_element(dx.begin(), dx.end())) << std::endl;
   if (mat_map.size() <= std::size_t{10})
   {
-    os << "mat_map=";
+    os << "mat_map_int=";
     for (const auto & x : mat_map)
       os << " " << x;
     os << std::endl;

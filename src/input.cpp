@@ -38,7 +38,7 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
   std::string fname_xslib;
 
   std::vector<double> dx;
-  std::vector<int> mat_map;
+  std::vector<std::string> mat_map;
 
   while (ifs.good())
   {
@@ -73,7 +73,7 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
     }
     else if (card == "mat_map")
     {
-      for (int & x : mat_map)
+      for (auto & x : mat_map)
         ifs >> x;
     }
     else if (card == "refine")
@@ -147,10 +147,22 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
     }
   }
 
-  // secondary processing to separate error messages
-  geo = Geometry{dx, mat_map};
   xs = XSLibrary{fname_xslib};
   xs.finalize();
+
+  std::vector<int> mat_map_int;
+  mat_map_int.reserve(mat_map.size());
+  for (const auto & mat : mat_map)
+  {
+    const auto search{[&mat](const XSMaterial & xsmat) { return xsmat.name() == mat; }};
+    const auto pnt{std::find_if(xs.begin(), xs.end(), search)};
+    if (pnt == xs.end())
+      exception.fatal(std::string{"Failed to find XSMaterial in libaray: "} + mat);
+    mat_map_int.emplace_back(std::distance(xs.begin(), pnt));
+  }
+
+  // secondary processing to separate error messages
+  geo = Geometry{dx, mat_map_int};
 }
 
 void Input::check() const

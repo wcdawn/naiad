@@ -2,7 +2,7 @@ xslib ../mgxs_onegroup.xs
 
 nx 1
 dx 10.0
-mat_map 4
+mat_map U-235b
 
 spatial_method diamond_difference
 snorder 32

@@ -7,7 +7,7 @@ xslib ../mgxs_onegroup.xs
 
 nx 2
 dx 2.956802 3.063725
-mat_map 0 2
+mat_map PUa H2O
 
 spatial_method diamond_difference
 snorder 32

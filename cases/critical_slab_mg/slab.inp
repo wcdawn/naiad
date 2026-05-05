@@ -5,7 +5,7 @@ spatial_method diamond_difference
 nx 1
 
 dx 3.2
-mat_map 0
+mat_map U235
 
 refine 15
 

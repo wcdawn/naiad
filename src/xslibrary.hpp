@@ -64,6 +64,9 @@ class XSLibrary
     int ngroup() const { return ng; }
     int nmoment() const { return nmom; }
 
+    const auto begin() const { return mat.begin(); }
+    const auto end() const { return mat.end(); }
+
     void finalize();
 
   private:

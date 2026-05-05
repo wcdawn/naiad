@@ -2,7 +2,7 @@ xslib ../mgxs_twogroup.xs
 
 nx 2
 dx 4.863392 5.630757
-mat_map 4 6
+mat_map URRb H2Oa
 
 spatial_method diamond_difference
 snorder 32
