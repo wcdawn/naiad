@@ -7,11 +7,13 @@
 namespace naiad
 {
 
+class XSMaterial;
+
 class Geometry
 {
   public:
 
-    Geometry(const std::vector<double> & dx_, const std::vector<int> & mat_map_);
+    Geometry(const std::vector<double> & dx_, const std::vector<const XSMaterial *> & mat_map_);
 
     Geometry() : dx{}, mat_map{} {}
 
@@ -24,7 +26,7 @@ class Geometry
     std::vector<double> xcenter(double xinit = 0.0) const;
 
     std::vector<double> dx;
-    std::vector<int> mat_map;
+    std::vector<const XSMaterial *> mat_map;
 };
 
 } // namespace naiad

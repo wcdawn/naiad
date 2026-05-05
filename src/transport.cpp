@@ -36,15 +36,15 @@ Transport_solver::Transport_solver(const Geometry & geo_, const Spatial_method &
       for (const auto & x : geo.dx)
         max_dx = std::max(max_dx, x);
 
-      std::unordered_set<int> matcheck;
+      std::unordered_set<const XSMaterial *> matcheck;
       for (const auto & i : geo.mat_map)
         matcheck.insert(i);
       double max_sigma_t{0.0};
-      for (const auto & i : matcheck)
-        for (const auto & x : xslib(i).sigma_t)
+      for (const auto i : matcheck)
+        for (const auto & x : i->sigma_t)
           max_sigma_t = std::max(max_sigma_t, x);
 
-      double min_mu{2.0};
+      double min_mu{2.0}; // mu must be [-1,1]
       for (const auto & qp : quad->get_points())
         min_mu = std::min(min_mu, std::abs(qp.x));
 
@@ -99,7 +99,7 @@ std::vector<std::vector<double>> Transport_solver::build_fsource(const std::vect
     f.resize(geo.dx.size());
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto & xsthis{xslib(geo.mat_map[i])};
+    const auto & xsthis{*(geo.mat_map[i])};
     if (xsthis.isfis)
     {
       double xsum{0.0};
@@ -121,7 +121,7 @@ std::vector<std::vector<double>> Transport_solver::build_upscatter(const std::ve
     u.resize(geo.dx.size() * (src_order + 1));
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto & xsthis{xslib(geo.mat_map[i])};
+    const auto & xsthis{*(geo.mat_map[i])};
     for (int g = 0; g < xslib.ngroup(); ++g)
     {
       for (int gprime = g + 1; gprime < xslib.ngroup(); ++gprime)
@@ -142,7 +142,7 @@ std::vector<double> Transport_solver::build_downscatter(const std::vector<std::v
   downscatter.resize(geo.dx.size() * (src_order + 1));
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto & xsthis{xslib(geo.mat_map[i])};
+    const auto & xsthis{*(geo.mat_map[i])};
     for (int gprime = 0; gprime < g; ++gprime)
       for (int ell = 0; ell < src_order + 1; ++ell)
         downscatter[i * (src_order + 1) + ell]
@@ -158,7 +158,7 @@ double Transport_solver::fission_summation(const std::vector<std::vector<double>
   double fsum{0.0};
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto & xsthis{xslib(geo.mat_map[i])};
+    const auto & xsthis{*(geo.mat_map[i])};
     if (xsthis.isfis)
     {
       for (int g = 0; g < xslib.ngroup(); ++g)
@@ -356,7 +356,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       double psi_edge{get_psi_left(j, g)};
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
-        const auto & xsthis{xslib(geo.mat_map[i])};
+        const auto & xsthis{*(geo.mat_map[i])};
         double q{0.0};
         for (int ell = 0; ell < src_order + 1; ++ell)
         {
@@ -379,7 +379,7 @@ std::vector<double> Diamond_difference_sweeper::sweep(const std::vector<double> 
       double psi_edge{get_psi_right(j, g)};
       for (long i = static_cast<long>(geo.dx.size()) - 1l; i >= 0; --i)
       {
-        const auto & xsthis{xslib(geo.mat_map[i])};
+        const auto & xsthis{*(geo.mat_map[i])};
         double q{0.0};
         for (int ell = 0; ell < src_order + 1; ++ell)
         {
@@ -483,7 +483,7 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
       double psi_edge{get_psi_left(j, g)};
       for (std::size_t i = 0; i < geo.dx.size(); ++i)
       {
-        const auto & xsthis{xslib(geo.mat_map[i])};
+        const auto & xsthis{*(geo.mat_map[i])};
         double q{0.0};
         for (int ell = 0; ell < src_order + 1; ++ell)
         {
@@ -506,7 +506,7 @@ std::vector<double> Step_characteristic_sweeper::sweep(const std::vector<double>
       double psi_edge{get_psi_right(j, g)};
       for (long i = static_cast<long>(geo.dx.size()) - 1l; i >= 0; --i)
       {
-        const auto & xsthis{xslib(geo.mat_map[i])};
+        const auto & xsthis{*(geo.mat_map[i])};
         double q{0.0};
         for (int ell = 0; ell < src_order + 1; ++ell)
         {

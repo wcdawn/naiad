@@ -150,19 +150,19 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
   xs = XSLibrary{fname_xslib};
   xs.finalize();
 
-  std::vector<int> mat_map_int;
-  mat_map_int.reserve(mat_map.size());
+  std::vector<const XSMaterial *> mat_map_ptr;
+  mat_map_ptr.reserve(mat_map.size());
   for (const auto & mat : mat_map)
   {
     const auto search{[&mat](const XSMaterial & xsmat) { return xsmat.name() == mat; }};
     const auto pnt{std::find_if(xs.begin(), xs.end(), search)};
     if (pnt == xs.end())
       exception.fatal(std::string{"Failed to find XSMaterial in libaray: "} + mat);
-    mat_map_int.emplace_back(std::distance(xs.begin(), pnt));
+    mat_map_ptr.emplace_back(&(*pnt));
   }
 
   // secondary processing to separate error messages
-  geo = Geometry{dx, mat_map_int};
+  geo = Geometry{dx, mat_map_ptr};
 }
 
 void Input::check() const

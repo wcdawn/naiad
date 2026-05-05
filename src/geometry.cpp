@@ -5,11 +5,13 @@
 #include <iostream>
 
 #include "exception_handler.hpp"
+#include "xslibrary.hpp"
 
 namespace naiad
 {
 
-Geometry::Geometry(const std::vector<double> & dx_, const std::vector<int> & mat_map_) : dx{dx_}, mat_map{mat_map_}
+Geometry::Geometry(const std::vector<double> & dx_, const std::vector<const XSMaterial *> & mat_map_)
+  : dx{dx_}, mat_map{mat_map_}
 {
   if (dx.size() != mat_map.size())
   {
@@ -21,7 +23,7 @@ Geometry::Geometry(const std::vector<double> & dx_, const std::vector<int> & mat
 void Geometry::refine()
 {
   const std::vector<double> dx_old{dx};
-  const std::vector<int> mat_map_old{mat_map};
+  const auto mat_map_old{mat_map};
   dx.resize(std::size_t{2} * dx_old.size());
   mat_map.resize(std::size_t{2} * mat_map_old.size());
   for (std::size_t i = 0; i < dx_old.size(); ++i)
@@ -82,9 +84,9 @@ void Geometry::summary(std::ostream & os) const
   os << "minimum dx= " << std::format("{:.2e}", *std::min_element(dx.begin(), dx.end())) << std::endl;
   if (mat_map.size() <= std::size_t{10})
   {
-    os << "mat_map_int=";
-    for (const auto & x : mat_map)
-      os << " " << x;
+    os << "mat_map=";
+    for (const auto x : mat_map)
+      os << " " << x->name();
     os << std::endl;
   }
   else

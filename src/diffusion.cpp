@@ -33,8 +33,8 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
 
   // BC at x=0, i=0 (mirror)
   {
-    const auto & xsthis{xslib(geo.mat_map[0])};
-    const auto & xsnext{xslib(geo.mat_map[1])};
+    const auto & xsthis{*(geo.mat_map[0])};
+    const auto & xsnext{*(geo.mat_map[1])};
     for (int g = 0; g < xslib.ngroup(); ++g)
     {
       const double dnext{2.0 * (xsthis.diffusion[g] / geo.dx[0] * xsnext.diffusion[g] / geo.dx[1])
@@ -48,9 +48,9 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
   {
     for (std::size_t i = 1; i < nx - 1; ++i)
     {
-      const auto & xsprev{xslib(geo.mat_map[i - 1])};
-      const auto & xsthis{xslib(geo.mat_map[i])};
-      const auto xsnext{xslib(geo.mat_map[i + 1])};
+      const auto & xsprev{*(geo.mat_map[i - 1])};
+      const auto & xsthis{*(geo.mat_map[i])};
+      const auto & xsnext{*(geo.mat_map[i + 1])};
 
       const double dprev{2.0 * (xsthis.diffusion[g] / geo.dx[i] * xsprev.diffusion[g] / geo.dx[i - 1])
                          / (xsthis.diffusion[g] / geo.dx[i] + xsprev.diffusion[g] / geo.dx[i - 1])};
@@ -65,8 +65,8 @@ std::vector<Tridiagonal_matrix> Diffusion_solver::build_matrix() const
 
   // BC at x=L, i=nx-1
   {
-    const auto & xsprev{xslib(geo.mat_map[nx - 2])};
-    const auto & xsthis{xslib(geo.mat_map.back())};
+    const auto & xsprev{*(geo.mat_map[nx - 2])};
+    const auto & xsthis{*(geo.mat_map.back())};
     switch (bc_right)
     {
       case (Boundary_condition::mirror):
@@ -110,7 +110,7 @@ std::vector<std::vector<double>> Diffusion_solver::build_fsource(const std::vect
 
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto & xsthis{xslib(geo.mat_map[i])};
+    const auto & xsthis{*(geo.mat_map[i])};
     if (xsthis.isfis)
     {
       double xsum{0.0};
@@ -134,7 +134,7 @@ std::vector<std::vector<double>> Diffusion_solver::build_upscatter(const std::ve
 
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto & xsthis{xslib(geo.mat_map[i])};
+    const auto & xsthis{*(geo.mat_map[i])};
     for (int g = 0; g < xslib.ngroup(); ++g)
     {
       for (int gprime = g + 1; gprime < xslib.ngroup(); ++gprime)
@@ -153,7 +153,7 @@ std::vector<double> Diffusion_solver::build_downscatter(const std::vector<std::v
   downscatter.resize(geo.dx.size());
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto & xsthis{xslib(geo.mat_map[i])};
+    const auto & xsthis{*(geo.mat_map[i])};
     for (int gprime = 0; gprime < g; ++gprime)
       downscatter[i] += xsthis.scatter[0](gprime, g) * flux[gprime][i];
     downscatter[i] *= geo.dx[i];
@@ -166,7 +166,7 @@ double Diffusion_solver::fission_summation(const std::vector<std::vector<double>
   double xsum{0.0};
   for (std::size_t i = 0; i < geo.dx.size(); ++i)
   {
-    const auto & xsthis{xslib(geo.mat_map[i])};
+    const auto & xsthis{*(geo.mat_map[i])};
     if (xsthis.isfis)
     {
       for (int g = 0; g < xslib.ngroup(); ++g)
