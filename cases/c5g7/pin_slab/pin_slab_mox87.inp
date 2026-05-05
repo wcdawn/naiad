@@ -1,0 +1,11 @@
+xslib ../c5g7.xs
+
+nx 2
+dx 0.54 0.09
+mat_map mox87 moderator
+refine 16
+
+snorder 64
+
+bc_left mirror
+bc_right mirror
