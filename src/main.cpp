@@ -170,6 +170,7 @@ int main(int argc, char * argv[])
   naiad::out << "writing phi csv on " << fname_phi_csv << std::endl;
   writer.write_phi(fname_phi_csv);
 
+  res.calculate_power(geo.mat_map);
   const std::string fname_power_csv{fname_stub + "_power.csv"};
   naiad::out << "writing power csv on " << fname_power_csv << std::endl;
   writer.write_power(fname_power_csv);
