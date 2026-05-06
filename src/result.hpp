@@ -3,6 +3,11 @@
 
 #include <vector>
 
+namespace naiad
+{
+
+class XSMaterial;
+
 class Result
 {
   public:
@@ -13,11 +18,18 @@ class Result
     {
     }
 
+    void calculate_power(const std::vector<const XSMaterial *> & mat_map);
+
     // index:
     // [ngroup][i * (pnorder+1) + n] for spatial index i and pn index n
     std::vector<std::vector<double>> phi;
+
+    std::vector<double> power; // nusf reaction rate
+
     double keff;
     int pnorder;
 };
+
+} // namespace naiad
 
 #endif
