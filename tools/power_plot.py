@@ -1,0 +1,26 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import sys
+
+import plot_settings
+
+if __name__ == "__main__":
+
+    fname = sys.argv[1]
+    extension = "png"
+    resolution = 600
+
+    dat = np.loadtxt(fname, delimiter=",", skiprows=1)
+
+    x = dat[:, 0]
+    power = dat[:, 1]
+
+    plt.figure()
+    plt.plot(x, power)
+    plt.xlabel("x [cm]")
+    plt.ylabel("Flux")
+    plt.title("Naiad Flux")
+    plt.tight_layout()
+    plt.savefig(fname.replace("csv", extension), dpi=resolution)
+
+    plt.show()
