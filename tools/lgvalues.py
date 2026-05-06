@@ -3,7 +3,6 @@ import numpy as np
 from lgvalues_weights import legendre_weights
 from lgvalues_abscissa import legendre_roots
 
-
 if __name__ == "__main__":
 
     NMAX = 64
