@@ -18,8 +18,8 @@ if __name__ == "__main__":
     plt.figure()
     plt.plot(x, power)
     plt.xlabel("x [cm]")
-    plt.ylabel("Flux")
-    plt.title("Naiad Flux")
+    plt.ylabel("Power")
+    plt.title("Naiad Power")
     plt.tight_layout()
     plt.savefig(fname.replace("csv", extension), dpi=resolution)
 
