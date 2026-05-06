@@ -47,4 +47,14 @@ void Writer::write_phi(const std::string & fname) const
   }
 }
 
+void Writer::write_power(const std::string & fname) const
+{
+  const std::vector<double> xcenter{geo.xcenter()};
+  std::ofstream ofs{fname};
+
+  ofs << "x [cm] , nusf_reaction_rate" << std::endl;
+  for (std::size_t i = 0; i < xcenter.size(); ++i)
+    ofs << std::format("{:.16e} , {:.16e}", xcenter[i], res.power[i]) << std::endl;
+}
+
 } // namespace naiad

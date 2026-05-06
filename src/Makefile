@@ -54,7 +54,7 @@ xslibrary.o : xslibrary.hpp exception_handler.hpp
 dense_matrix.o : dense_matrix.hpp
 exception_handler.o : exception_handler.hpp
 diffusion.o : diffusion.hpp input.hpp geometry.hpp xslibrary.hpp result.hpp exception_handler.hpp linalg.hpp
-result.o : result.hpp
+result.o : result.hpp xslibrary.hpp
 linalg.o : linalg.hpp
 writer.o : writer.hpp geometry.hpp result.hpp
 analysis.o : analysis.hpp geometry.hpp result.hpp exception_handler.hpp xslibrary.hpp
