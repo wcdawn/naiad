@@ -57,9 +57,29 @@ if __name__ == "__main__":
         "mox43",
     ]
 
+    assembly_mix = [
+        "mox43",
+        "mox70",
+        "gdt",
+        "mox87",
+        "mox87",
+        "gdt",
+        "mox87",
+        "mox87",
+        "gdt",
+        "uo2",
+        "uo2",
+        "gdt",
+        "uo2",
+        "uo2",
+        "gdt",
+        "uo2",
+        "uo2",
+    ]
+
     dx = []
     mat = []
-    for pin in assembly_mox:
+    for pin in assembly_mix:
         if pin == "uo2":
             dx += dx_uo2
             mat += mat_uo2
