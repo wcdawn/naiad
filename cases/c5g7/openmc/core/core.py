@@ -18,6 +18,9 @@ if __name__ == "__main__":
     mat_gdt = ["moderator", "guide_tube", "moderator"]
     dx_gdt = [0.09, 1.08, 0.09]
 
+    mat_mod = ["moderator"]
+    dx_mod = [1.26]
+
     assembly_uo2 = [
         "uo2",
         "uo2",
@@ -98,6 +101,9 @@ if __name__ == "__main__":
         elif pin == "gdt":
             dx += dx_gdt
             mat += mat_gdt
+        elif pin == "mod":
+            dx += dx_mod
+            mat += mat_mod
         else:
             print("unknown pin: ", pin)
             sys.exit(1)
