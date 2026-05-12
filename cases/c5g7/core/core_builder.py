@@ -17,6 +17,9 @@ if __name__ == "__main__":
     mat_gdt = ["moderator", "guide_tube", "moderator"]
     dx_gdt = [0.09, 1.08, 0.09]
 
+    mat_fiss = ["moderator", "fission_chamber", "moderator"]
+    dx_fiss = [0.09, 1.08, 0.09]
+
     mat_mod = ["moderator"]
     dx_mod = [1.26]
 
@@ -103,6 +106,9 @@ if __name__ == "__main__":
         elif pin == "mod":
             dx += dx_mod
             mat += mat_mod
+        elif pin == "fiss":
+            dx += dx_fiss
+            mat += mat_fiss
         else:
             print("unknown pin: ", pin)
             sys.exit(1)

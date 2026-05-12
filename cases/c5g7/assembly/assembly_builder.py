@@ -17,6 +17,9 @@ if __name__ == "__main__":
     mat_gdt = ["moderator", "guide_tube", "moderator"]
     dx_gdt = [0.09, 1.08, 0.09]
 
+    mat_fiss = ["moderator", "fission_chamber", "moderator"]
+    dx_fiss = [0.09, 1.08, 0.09]
+
     assembly_uo2 = [
         "uo2",
         "uo2",
@@ -79,7 +82,7 @@ if __name__ == "__main__":
 
     dx = []
     mat = []
-    for pin in assembly_mix:
+    for pin in assembly_uo2:
         if pin == "uo2":
             dx += dx_uo2
             mat += mat_uo2
@@ -95,6 +98,9 @@ if __name__ == "__main__":
         elif pin == "gdt":
             dx += dx_gdt
             mat += mat_gdt
+        elif pin == "fiss":
+            dx += dx_fiss
+            mat += mat_fiss
         else:
             print("unknown pin: ", pin)
             sys.exit(1)
