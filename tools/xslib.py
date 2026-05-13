@@ -98,7 +98,7 @@ def eigen(xsmat):
 
     # find the matching eigenvector
     for i in range(len(eigval)):
-        if np.real(eigval[i]) == keff:
+        if np.real(eigval[i]) == kinf:
             phi = eigvec[:i]
             break
 
