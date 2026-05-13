@@ -13,6 +13,7 @@
 #include "output.hpp"
 #include "quadrature1d.hpp"
 #include "quadrature_gauss_legendre.hpp"
+#include "quadrature_uniform.hpp"
 #include "result.hpp"
 #include "timer.hpp"
 #include "transport.hpp"
@@ -71,6 +72,7 @@ int main(int argc, char * argv[])
 
   // parse input
   const Input input{fname_inp};
+  input.check();
 
   input.echo(fout);
   input.summary(naiad::out);
@@ -121,8 +123,19 @@ int main(int argc, char * argv[])
     naiad::out << std::endl;
 
     // transport
-    const std::unique_ptr<Quadrature_gauss_legendre> quadrature{
-        std::make_unique<Quadrature_gauss_legendre>(input.snorder)};
+    std::unique_ptr<Quadrature1d> quadrature;
+    switch (input.quad_type)
+    {
+      case (Quadrature_type::gauss_legendre):
+        quadrature = std::make_unique<Quadrature_gauss_legendre>(input.snorder);
+        break;
+      case (Quadrature_type::uniform):
+        quadrature = std::make_unique<Quadrature_uniform>(input.snorder);
+        break;
+      default:
+        exception.fatal("Unsupported quadrature type: " + enum2str(input.quad_type));
+    }
+
     const Transport_solver transport{geo,   input.spatial_method, input.calc_type,  input.bc_left, input.bc_right,
                                      xslib, input.tolerance(),    quadrature.get(), input.pnorder};
     timer.start("transport");

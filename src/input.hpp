@@ -59,6 +59,15 @@ enum class Calculation_type
 Calculation_type str2enum_calculation_type(const std::string & str);
 std::string enum2str(const Calculation_type calc);
 
+enum class Quadrature_type
+{
+  gauss_legendre,
+  uniform,
+};
+
+Quadrature_type str2enum_quadrature_type(const std::string & str);
+std::string enum2str(const Quadrature_type quad);
+
 class Input
 {
   public:
@@ -77,6 +86,7 @@ class Input
 
     int pnorder{0};
     int snorder{0}; // snorder==0 will be used to access the diffusion solver
+    Quadrature_type quad_type{Quadrature_type::gauss_legendre};
 
     Spatial_method spatial_method{Spatial_method::diamond_difference};
 
