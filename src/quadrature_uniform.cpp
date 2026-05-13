@@ -2,9 +2,8 @@
 
 namespace naiad
 {
-   
-double Quadrature_uniform::integrate(const std::function<double(double)> & f, const double xlo,
-                                            const double xhi) const
+
+double Quadrature_uniform::integrate(const std::function<double(double)> & f, const double xlo, const double xhi) const
 {
   double xsum{0.0};
   for (const auto & qp : points)
@@ -18,10 +17,9 @@ double Quadrature_uniform::integrate(const std::function<double(double)> & f, co
 void Quadrature_uniform::populate(int order)
 {
   points.reserve(order);
-  const double weight{1.0/static_cast<double>(order)};
-  const double dx{weight*2.0};
+  const double dx{2.0 / static_cast<double>(order)};
   for (int i = 0; i < order; ++i)
-    points.emplace_back(Quadrature_point{.x=(-1.0+dx*(i+0.5)), .w=weight});
+    points.emplace_back(Quadrature_point{.x = (-1.0 + dx * (i + 0.5)), .w = dx});
 }
 
 } // namespace naiad

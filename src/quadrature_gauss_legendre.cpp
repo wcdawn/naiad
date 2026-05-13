@@ -7,7 +7,7 @@ const std::vector<std::vector<Quadrature_point>> Quadrature_gauss_legendre::quad
     = std::vector<std::vector<Quadrature_point>>{
         std::vector<Quadrature_point>{
             // n = 1
-            {.x = 0.0000000000000000e+00, .w = 1.0000000000000000e+00},
+            {.x = 0.0000000000000000e+00, .w = 2.0000000000000000e+00},
         },
         std::vector<Quadrature_point>{
             // n = 2
