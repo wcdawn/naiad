@@ -81,6 +81,12 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
       ifs >> refine;
     }
 
+    else if (card == "quadrature_type")
+    {
+      std::string q;
+      ifs >> q;
+      quad_type = str2enum_quadrature_type(q);
+    }
     else if (card == "snorder")
     {
       ifs >> snorder;
@@ -191,6 +197,7 @@ void Input::summary(std::ostream & os) const
   if (snorder == 0)
     os << " (diffusion)";
   os << std::endl;
+  os << "Quadrature type: " << enum2str(quad_type) << std::endl;
 
   os << "spatial method: " << enum2str(spatial_method) << std::endl;
   os << "BC left: " << enum2str(bc_left) << std::endl;
@@ -296,6 +303,31 @@ std::string enum2str(const Calculation_type calc)
     default:
       exception.fatal(std::string{"Unable to identify calculation type name: "}
                       + std::format("{:d}", static_cast<int>(calc)));
+      return "unknown";
+  }
+}
+
+Quadrature_type str2enum_quadrature_type(const std::string & str)
+{
+  if (str == "gauss_legendre")
+    return Quadrature_type::gauss_legendre;
+  if (str == "uniform")
+    return Quadrature_type::uniform;
+  exception.fatal("Unable to identify quadrature type: " + str);
+  return Quadrature_type::gauss_legendre;
+}
+
+std::string enum2str(const Quadrature_type quad)
+{
+  switch (quad)
+  {
+    case (Quadrature_type::gauss_legendre):
+      return "gauss_legendre";
+    case (Quadrature_type::uniform):
+      return "uniform";
+    default:
+      exception.fatal(std::string{"Unable to identify quadrature type name: "}
+                      + std::format("{:d}", static_cast<int>(quad)));
       return "unknown";
   }
 }

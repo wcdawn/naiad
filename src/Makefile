@@ -23,7 +23,8 @@ OBJ = main.o \
 	  quadrature_gauss_legendre.o \
 	  transport.o \
 	  timer.o \
-	  math.o
+	  math.o \
+	  quadrature_uniform.o
 
 .PHONY : default all clean format
 
@@ -46,7 +47,7 @@ clean:
 format:
 	${CLANG_FORMAT} -i ./*.[ch]pp
 
-main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp exception_handler.hpp diffusion.hpp result.hpp writer.hpp analysis.hpp transport.hpp
+main.o : input.hpp output.hpp geometry.hpp xslibrary.hpp exception_handler.hpp diffusion.hpp result.hpp writer.hpp analysis.hpp transport.hpp quadrature_gauss_legendre.hpp quadrature_uniform.hpp
 input.o : input.hpp geometry.hpp xslibrary.hpp exception_handler.hpp analysis.hpp
 output.o : output.hpp
 geometry.o : geometry.hpp exception_handler.hpp
@@ -63,3 +64,4 @@ quadrature_gauss_legendre.o : quadrature_gauss_legendre.hpp quadrature1d.hpp
 transport.o : transport.hpp input.hpp geometry.hpp xslibrary.hpp result.hpp quadrature1d.hpp exception_handler.hpp
 timer.o : timer.hpp output.hpp
 math.o : math.hpp
+quadrature_uniform.o : quadrature_uniform.hpp quadrature1d.hpp
