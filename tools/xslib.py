@@ -64,7 +64,7 @@ def load(fname):
                 xsthis["chi"] = chi.copy()
             elif s[0] == "scatter":
                 if "scatter" not in xsthis:
-                    xsthis["scatter"] = np.zeros((nmoment + 1, ngroup, ngroup))
+                    xsthis["scatter"] = np.zeros((nmoment, ngroup, ngroup))
                 ell = int(s[1])
                 for g in range(ngroup):
                     xsthis["scatter"][ell, g, :] = np.array(
