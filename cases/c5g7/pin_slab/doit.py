@@ -53,7 +53,7 @@ if __name__ == "__main__":
     resolution = 600
 
     executable = "/Users/williamdawn/work/naiad/src/naiad.x"
-    fname_base = "pin_slab_uo2.inp"
+    fname_base = "pin_slab_uo2_uniform.inp"
     arr_snorder = [2, 4, 8, 16, 32, 64, 128, 256]
     max_refine = 10
 
