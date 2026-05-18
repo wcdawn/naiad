@@ -1,11 +1,12 @@
 xslib ../c5g7.xs
 
-nx 2
-dx 0.54 0.09
-mat_map mox43 moderator
-refine 14
+nx 7
+dx 0.09 0.09 0.09 0.09 0.09 0.09 0.09
+mat_map mox43 mox43 mox43 mox43 mox43 mox43 moderator
+refine 5
 
-snorder 64
+snorder 256
+quadrature_type uniform
 
 bc_left mirror
 bc_right mirror
