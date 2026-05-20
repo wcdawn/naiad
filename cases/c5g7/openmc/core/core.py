@@ -125,9 +125,9 @@ if __name__ == "__main__":
     with h5py.File(fname_xs, "r") as h5:
         for xs in h5:
             xsname = xs
-            if (xsname == "moderator"):
+            if xsname == "moderator":
                 xsname = "water"
-            elif (xsname == "mox70"):
+            elif xsname == "mox70":
                 xsname = "mox7"
             material_dict[xsname] = openmc.Material(name=xs)
             material_dict[xsname].set_density("macro", 1.0)
@@ -164,7 +164,7 @@ if __name__ == "__main__":
 
         cell.append(c)
 
-    surf[-1].boundary_type = "reflective"
+    surf[-1].boundary_type = "vacuum"
 
     geom = openmc.Geometry(cell)
     geom.export_to_xml()
@@ -184,4 +184,4 @@ if __name__ == "__main__":
 
     settings.export_to_xml()
 
-    openmc.run(threads=8)
+    openmc.run(threads=12)
