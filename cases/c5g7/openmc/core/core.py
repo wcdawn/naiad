@@ -1,5 +1,6 @@
 import sys
 import openmc
+import h5py
 
 if __name__ == "__main__":
 
@@ -118,20 +119,25 @@ if __name__ == "__main__":
 
     model = openmc.Model()
 
+    fname_xs = "../c5g7.h5"
     # For every cross section data set in the library, assign an openmc.Macroscopic object to a material
     material_dict = {}
-    for xs in ["uo2", "mox43", "mox7", "mox87", "fiss_chamber", "guide_tube", "water"]:
-        material_dict[xs] = openmc.Material(name=xs)
-        material_dict[xs].set_density("macro", 1.0)
-        material_dict[xs].add_macroscopic(xs)
+    with h5py.File(fname_xs, "r") as h5:
+        for xs in h5:
+            xsname = xs
+            if (xsname == "moderator"):
+                xsname = "water"
+            elif (xsname == "mox70"):
+                xsname = "mox7"
+            material_dict[xsname] = openmc.Material(name=xs)
+            material_dict[xsname].set_density("macro", 1.0)
+            material_dict[xsname].add_macroscopic(xs)
 
     # Instantiate a Materials collection, register all Materials, and export to XML
     materials = openmc.Materials(material_dict.values())
 
     # Set the location of the cross sections file to our pre-written set
-    # NOTE: these cross sections were produced by the OpenMC developers (not me).
-    # So, hopefully they serve as an independent check.
-    materials.cross_sections = "../c5g7.h5"
+    materials.cross_sections = fname_xs
     materials.export_to_xml()
 
     surf = []
@@ -165,8 +171,8 @@ if __name__ == "__main__":
 
     settings = openmc.Settings()
     settings.energy_mode = "multi-group"
-    settings.particles = 1_000_000
-    settings.batches = 150
+    settings.particles = 10_000_000
+    settings.batches = 50 + 1000
     settings.inactive = 50
 
     # Create an initial uniform spatial source distribution over fissionable zones
