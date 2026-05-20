@@ -1,7 +1,7 @@
 xslib ../c5g7.xs
 
-refine 5
-snorder 256
+refine 6
+snorder 512
 quadrature_type uniform
 
 bc_left mirror
