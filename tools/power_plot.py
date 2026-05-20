@@ -15,6 +15,9 @@ if __name__ == "__main__":
     x = dat[:, 0]
     power = dat[:, 1]
 
+    # don't plot power in zero-power regions
+    power[power == 0.0] = np.nan
+
     plt.figure()
     plt.plot(x, power)
     plt.xlabel("x [cm]")

@@ -16,7 +16,10 @@ void Result::calculate_power(const std::vector<const XSMaterial *> & mat_map)
       {
         // NOTE: using nusf reaction rate for now.
         // This is representative of power if kappa/nu is constant.
-        power[i] += mat_map[i]->nusf[g] * phi[g][i * (pnorder + 1) + 0];
+        if (!mat_map[i]->sigma_f.empty())
+          power[i] += mat_map[i]->sigma_f[g] * phi[g][i * (pnorder + 1) + 0];
+        else
+          power[i] += mat_map[i]->nusf[g] * phi[g][i * (pnorder + 1) + 0];
       }
     }
   }

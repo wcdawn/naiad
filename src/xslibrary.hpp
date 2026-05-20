@@ -28,13 +28,13 @@ class XSMaterial
     std::vector<Dense_matrix<double>> scatter;
 
     // NOTE: this block is optional!
-    std::vector<double> sigma_a;
+    std::vector<double> sigma_a; // I don't use this anywhere
     // if a diffusion coeff is not input, it is set to 1.0/(3.0*sigma_t)
     std::vector<double> diffusion;
 
     bool isfis{false};
     std::vector<double> nusf;
-    std::vector<double> sigma_f;
+    std::vector<double> sigma_f; // only used for fission RR edits
     std::vector<double> chi;
 
     void finalize();
