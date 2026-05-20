@@ -54,8 +54,8 @@ if __name__ == "__main__":
 
     executable = "/Users/williamdawn/work/naiad/src/naiad.x"
     fname_base = "assembly_uo2_uniform.inp"
-    arr_snorder = [2, 4, 8, 16, 32, 64, 128, 256]
-    max_refine = 10
+    arr_snorder = [8, 16, 32, 64, 128, 256, 512]
+    max_refine = 7
 
     fname_run = fname_base.replace(".inp", "_run.inp")
 
