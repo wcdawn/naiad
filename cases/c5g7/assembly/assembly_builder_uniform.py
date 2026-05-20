@@ -2,23 +2,203 @@ import sys
 
 if __name__ == "__main__":
 
-    mat_uo2 = ["moderator", "uo2", "uo2", "uo2", "uo2", "uo2", "uo2", "uo2", "uo2", "uo2", "uo2", "uo2", "uo2", "moderator"]
-    dx_uo2 = [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09]
+    mat_uo2 = [
+        "moderator",
+        "uo2",
+        "uo2",
+        "uo2",
+        "uo2",
+        "uo2",
+        "uo2",
+        "uo2",
+        "uo2",
+        "uo2",
+        "uo2",
+        "uo2",
+        "uo2",
+        "moderator",
+    ]
+    dx_uo2 = [
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+    ]
 
-    mat_mox43 = ["moderator", "mox43", "mox43", "mox43", "mox43", "mox43", "mox43", "mox43", "mox43", "mox43", "mox43", "mox43", "mox43", "moderator"]
-    dx_mox43 = [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09]
+    mat_mox43 = [
+        "moderator",
+        "mox43",
+        "mox43",
+        "mox43",
+        "mox43",
+        "mox43",
+        "mox43",
+        "mox43",
+        "mox43",
+        "mox43",
+        "mox43",
+        "mox43",
+        "mox43",
+        "moderator",
+    ]
+    dx_mox43 = [
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+    ]
 
-    mat_mox70 = ["moderator", "mox70", "mox70", "mox70", "mox70", "mox70", "mox70", "mox70", "mox70", "mox70", "mox70", "mox70", "mox70", "moderator"]
-    dx_mox70 = [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09]
+    mat_mox70 = [
+        "moderator",
+        "mox70",
+        "mox70",
+        "mox70",
+        "mox70",
+        "mox70",
+        "mox70",
+        "mox70",
+        "mox70",
+        "mox70",
+        "mox70",
+        "mox70",
+        "mox70",
+        "moderator",
+    ]
+    dx_mox70 = [
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+    ]
 
-    mat_mox87 = ["moderator", "mox87", "mox87", "mox87", "mox87", "mox87", "mox87", "mox87", "mox87", "mox87", "mox87", "mox87", "mox87", "moderator"]
-    dx_mox87 = [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09]
+    mat_mox87 = [
+        "moderator",
+        "mox87",
+        "mox87",
+        "mox87",
+        "mox87",
+        "mox87",
+        "mox87",
+        "mox87",
+        "mox87",
+        "mox87",
+        "mox87",
+        "mox87",
+        "mox87",
+        "moderator",
+    ]
+    dx_mox87 = [
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+    ]
 
-    mat_gdt = ["moderator", "guide_tube", "guide_tube", "guide_tube", "guide_tube", "guide_tube", "guide_tube", "guide_tube", "guide_tube", "guide_tube", "guide_tube", "guide_tube", "guide_tube", "moderator"]
-    dx_gdt = [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09]
+    mat_gdt = [
+        "moderator",
+        "guide_tube",
+        "guide_tube",
+        "guide_tube",
+        "guide_tube",
+        "guide_tube",
+        "guide_tube",
+        "guide_tube",
+        "guide_tube",
+        "guide_tube",
+        "guide_tube",
+        "guide_tube",
+        "guide_tube",
+        "moderator",
+    ]
+    dx_gdt = [
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+    ]
 
-    mat_fiss = ["moderator", "fission_chamber", "fission_chamber", "fission_chamber", "fission_chamber", "fission_chamber", "fission_chamber", "fission_chamber", "fission_chamber", "fission_chamber", "fission_chamber", "fission_chamber", "fission_chamber", "moderator"]
-    dx_fiss = [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09]
+    mat_fiss = [
+        "moderator",
+        "fission_chamber",
+        "fission_chamber",
+        "fission_chamber",
+        "fission_chamber",
+        "fission_chamber",
+        "fission_chamber",
+        "fission_chamber",
+        "fission_chamber",
+        "fission_chamber",
+        "fission_chamber",
+        "fission_chamber",
+        "fission_chamber",
+        "moderator",
+    ]
+    dx_fiss = [
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+        0.09,
+    ]
 
     assembly_uo2 = [
         "uo2",
@@ -60,29 +240,9 @@ if __name__ == "__main__":
         "mox43",
     ]
 
-    assembly_mix = [
-        "mox43",
-        "mox70",
-        "gdt",
-        "mox87",
-        "mox87",
-        "gdt",
-        "mox87",
-        "mox87",
-        "gdt",
-        "uo2",
-        "uo2",
-        "gdt",
-        "uo2",
-        "uo2",
-        "gdt",
-        "uo2",
-        "uo2",
-    ]
-
     dx = []
     mat = []
-    for pin in assembly_mix:
+    for pin in assembly_mox:
         if pin == "uo2":
             dx += dx_uo2
             mat += mat_uo2
