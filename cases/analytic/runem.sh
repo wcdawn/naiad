@@ -1,7 +1,7 @@
 #!/bin/sh
 
 NTHREAD=16
-NAIAD=/Users/williamdawn/work/naiad/src/naiad.x
+NAIAD="$(pwd)/../../src/naiad.x"
 
 for CASE in $( cat manifest.txt )
 do

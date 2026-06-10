@@ -51,7 +51,7 @@ def get_nx(lines):
 
 if __name__ == "__main__":
 
-    executable = "/Users/williamdawn/work/naiad/src/naiad.x"
+    executable = "../../src/naiad.x"
     fname_base = "tworeg.inp"
     max_refine = 9
 
