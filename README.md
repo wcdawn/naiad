@@ -8,15 +8,15 @@ To build.
 
 ```
 git clone <url>
-cd naiad/src
-make
+cmake -B build
+cmake --build build
 ```
 
-You may want to modify the C++ compiler and you can do this by changing the `CXX` variable in the `src/Makefile`.
+Naiad uses CMake to build the code. You can use typical CMake configuration options.
 
 Note that Naiad uses OpenMP (shared-memory) parallelism with C++. I have developed this on a Mac laptop, and the clang++ compiler installed with MacOS does not natively support OpenMP.
 
-If you too are using a Mac, my recommended installation is to use [homebrew](https://brew.sh/) to install a version of `llvm` and then point the `CXX` compiler variable in `src/Makefile` to the new C++ compiler. You'll see that this is what I did in the Makefile.
+If you too are using a Mac, my recommended installation is to use [homebrew](https://brew.sh/) to install a version of `llvm`.
 
 # Features
 
@@ -24,8 +24,8 @@ If you too are using a Mac, my recommended installation is to use [homebrew](htt
     - Many energy groups.
     - High-order SN (up to S64).
     - Parallel calculations with OpenMP.
-- Work in progress:
     - Anisotropic scattering.
+- Work in progress:
     - Many spatial discretization schemes (discrete ordinates, step characteristics, linear characteristics, quadratic characteristics, and discontinuous Galerkin).
 
 # Name
