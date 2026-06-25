@@ -8,6 +8,7 @@ To build.
 
 ```
 git clone <url>
+cd naiad
 cmake -B build
 cmake --build build
 ```
