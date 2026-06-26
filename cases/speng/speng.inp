@@ -1,0 +1,13 @@
+xslib shem-361.xs
+
+nx 5
+dx 10. 10. 10. 10. 10.
+mat_map COO_H1 COO_H1 COO_H1 COO_H1 COO_H1
+
+refine 4
+pnorder 1
+snorder 32
+
+bc_right vacuum
+
+calc_type speng
