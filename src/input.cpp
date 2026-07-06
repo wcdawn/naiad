@@ -33,6 +33,7 @@ std::string slurp(const std::string & filename)
 
 Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slurp(filename_)}
 {
+  constexpr char comment_char{'#'};
   std::ifstream ifs{filename};
 
   std::string fname_xslib;
@@ -43,8 +44,9 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
   while (ifs.good())
   {
     const std::string card{get_card(ifs)};
-    if (card[0] == '#')
+    if (card[0] == comment_char)
     {
+      // eat until newline
       for (char x{'a'}; x != '\n'; ifs.get(x))
       {
       }
