@@ -18,6 +18,7 @@ class Writer
     void write_flux(const std::string & fname) const;
     void write_phi(const std::string & fname) const;
     void write_power(const std::string & fname) const;
+    void write_mat_map(const std::string & fname) const;
 
   private:
 

@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "output.hpp"
+#include "xslibrary.hpp"
 
 namespace naiad
 {
@@ -55,6 +56,16 @@ void Writer::write_power(const std::string & fname) const
   ofs << "x [cm] , nusf_reaction_rate" << std::endl;
   for (std::size_t i = 0; i < xcenter.size(); ++i)
     ofs << std::format("{:.16e} , {:.16e}", xcenter[i], res.power[i]) << std::endl;
+}
+
+void Writer::write_mat_map(const std::string & fname) const
+{
+  const std::vector<double> xcenter{geo.xcenter()};
+  std::ofstream ofs{fname};
+
+  ofs << "x [cm] , material name" << std::endl;
+  for (std::size_t i = 0; i < xcenter.size(); ++i)
+    ofs << std::format("{:.16e} , {:s}", xcenter[i], geo.mat_map[i]->name()) << std::endl;
 }
 
 } // namespace naiad
