@@ -28,7 +28,8 @@ std::string enum2str(const Analysis_reference & analysis_ref)
   return "unknown";
 }
 
-Analysis_reference str2enum_analysis_reference(const std::string & str)
+template <>
+Analysis_reference str2enum<Analysis_reference>(const std::string & str)
 {
   if (str == "none")
     return Analysis_reference::none;

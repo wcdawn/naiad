@@ -87,7 +87,7 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
     {
       std::string q;
       ifs >> q;
-      quad_type = str2enum_quadrature_type(q);
+      quad_type = str2enum<Quadrature_type>(q);
     }
     else if (card == "snorder")
     {
@@ -101,18 +101,18 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
     else if (card == "spatial_method")
     {
       const std::string spat{get_card(ifs)};
-      spatial_method = str2enum_spatial_method(spat);
+      spatial_method = str2enum<Spatial_method>(spat);
     }
 
     else if (card == "bc_left")
     {
       const std::string bc{get_card(ifs)};
-      bc_left = str2enum_boundary_condition(bc);
+      bc_left = str2enum<Boundary_condition>(bc);
     }
     else if (card == "bc_right")
     {
       const std::string bc{get_card(ifs)};
-      bc_right = str2enum_boundary_condition(bc);
+      bc_right = str2enum<Boundary_condition>(bc);
     }
 
     else if (card == "tol_phi")
@@ -140,13 +140,13 @@ Input::Input(const std::string & filename_) : filename{filename_}, echo_str{slur
     {
       std::string aref;
       ifs >> aref;
-      analysis_reference = str2enum_analysis_reference(aref);
+      analysis_reference = str2enum<Analysis_reference>(aref);
     }
     else if (card == "calc_type")
     {
       std::string ctype;
       ifs >> ctype;
-      calc_type = str2enum_calculation_type(ctype);
+      calc_type = str2enum<Calculation_type>(ctype);
     }
 
     else
@@ -218,7 +218,8 @@ void Input::summary(std::ostream & os) const
   os << std::endl;
 }
 
-Spatial_method str2enum_spatial_method(const std::string & str)
+template <>
+Spatial_method str2enum<Spatial_method>(const std::string & str)
 {
   if (str == "diamond_difference")
     return Spatial_method::diamond_difference;
@@ -255,7 +256,8 @@ std::string enum2str(const Spatial_method spatial_method)
   }
 }
 
-Boundary_condition str2enum_boundary_condition(const std::string & str)
+template <>
+Boundary_condition str2enum<Boundary_condition>(const std::string & str)
 {
   if (str == "vacuum")
     return Boundary_condition::vacuum;
@@ -284,7 +286,8 @@ std::string enum2str(const Boundary_condition bc)
   }
 }
 
-Calculation_type str2enum_calculation_type(const std::string & str)
+template <>
+Calculation_type str2enum<Calculation_type>(const std::string & str)
 {
   if (str == "keff")
     return Calculation_type::keff;
@@ -309,7 +312,8 @@ std::string enum2str(const Calculation_type calc)
   }
 }
 
-Quadrature_type str2enum_quadrature_type(const std::string & str)
+template <>
+Quadrature_type str2enum<Quadrature_type>(const std::string & str)
 {
   if (str == "gauss_legendre")
     return Quadrature_type::gauss_legendre;

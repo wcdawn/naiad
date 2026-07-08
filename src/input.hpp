@@ -37,7 +37,8 @@ enum class Spatial_method
   quadratic_characteristic,
 };
 
-Spatial_method str2enum_spatial_method(const std::string & str);
+template <>
+Spatial_method str2enum<Spatial_method>(const std::string & str);
 std::string enum2str(const Spatial_method spatial_method);
 
 enum class Boundary_condition
@@ -47,7 +48,8 @@ enum class Boundary_condition
   zero,
 };
 
-Boundary_condition str2enum_boundary_condition(const std::string & str);
+template <>
+Boundary_condition str2enum<Boundary_condition>(const std::string & str);
 std::string enum2str(const Boundary_condition bc);
 
 enum class Calculation_type
@@ -56,7 +58,8 @@ enum class Calculation_type
   speng,
 };
 
-Calculation_type str2enum_calculation_type(const std::string & str);
+template <>
+Calculation_type str2enum<Calculation_type>(const std::string & str);
 std::string enum2str(const Calculation_type calc);
 
 enum class Quadrature_type
@@ -65,7 +68,8 @@ enum class Quadrature_type
   uniform,
 };
 
-Quadrature_type str2enum_quadrature_type(const std::string & str);
+template <>
+Quadrature_type str2enum<Quadrature_type>(const std::string & str);
 std::string enum2str(const Quadrature_type quad);
 
 class Input
