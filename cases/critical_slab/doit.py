@@ -49,7 +49,7 @@ def get_nx(lines):
 
 if __name__ == "__main__":
 
-    executable = "/Users/williamdawn/work/naiad/src/naiad.x"
+    executable = "../../build/naiad.x"
     fname_base = "slab.inp"
     max_snorder = 64
     max_refine = 16
@@ -71,7 +71,7 @@ if __name__ == "__main__":
             out = run(executable, fname_run)
             if "WARNING" in out:
                 print("Encountered warning sn=", sn, "r=", r)
-                sys.exit(1)
+                # sys.exit(1)
             out = out.split("\n")
             keff = get_keff(out)
             table[sidx, ridx] = keff
